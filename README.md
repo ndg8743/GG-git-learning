@@ -1,8 +1,5 @@
-# CodePath: Refined Interface Layout
 
-Based on your detailed clarification, here's the updated interface design:
-
-## Layout Structure (From Bottom to Top)
+## Module Layout Structure (From Bottom to Top)
 
 ### 1. Timeline Bar (Bottom-most element)
 - Thin timeline stretching full width across the bottom
