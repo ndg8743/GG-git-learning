@@ -4,6 +4,8 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
+RUN npm install -g pm2
+
 # Copy package.json files
 COPY package*.json ./
 COPY backend/package*.json ./backend/
@@ -24,4 +26,4 @@ RUN cd frontend && npm run build
 EXPOSE 54321
 
 # Command to run the application
-CMD ["node", "backend/server.js"]
+CMD ["pm2-runtime", "backend/server.js"]
