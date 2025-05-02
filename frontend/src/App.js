@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
+import config from './config';
 import LearningJourney from './components/LearningJourney';
 import ModuleContent from './components/ModuleContent';
 
@@ -14,7 +15,7 @@ function App() {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/modules');
+        const response = await axios.get(`${config.apiUrl}/modules`);
         setModules(response.data.modules);
         setConnections(response.data.connections);
         setLoading(false);

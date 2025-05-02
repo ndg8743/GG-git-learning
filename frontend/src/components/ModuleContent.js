@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import config from '../config';
 import Terminal from './Terminal';
 import Timeline from './Timeline';
 import FileStructure from './FileStructure';
@@ -22,7 +23,7 @@ const ModuleContent = () => {
     const fetchModule = async () => {
       try {
         console.log('Fetching module with ID:', moduleId);
-        const response = await axios.get(`http://localhost:5001/api/modules/${moduleId}`);
+        const response = await axios.get(`${config.apiUrl}/modules/${moduleId}`);
         console.log('Module data received:', response.data);
         setModule(response.data);
         setLoading(false);

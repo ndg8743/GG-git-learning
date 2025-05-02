@@ -8,13 +8,13 @@ const fs = require('fs');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 54321; // Random high port number
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// API Routes
 app.get('/api/modules', (req, res) => {
   try {
     const modulesPath = path.join(__dirname, 'src/data/modules.json');
@@ -43,7 +43,17 @@ app.get('/api/modules/:id', (req, res) => {
   }
 });
 
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Anything that doesn't match the above, send back the index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/api`);
+  console.log(`Frontend available at http://localhost:${PORT}`);
 });
