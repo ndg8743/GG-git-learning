@@ -1,0 +1,180 @@
+{
+  "id": "git-security",
+  "title": "Git Security Best Practices",
+  "description": "Secure workflows and managing secrets",
+  "content": {
+    "overview": "Security is a critical aspect of version control. This module covers Git security best practices, including how to protect sensitive information, secure your repositories, and implement workflows that maintain the integrity and confidentiality of your code.",
+    "steps": [
+      {
+        "title": "Understanding Git Security Risks",
+        "content": "Git repositories can contain sensitive information that, if exposed, could lead to security breaches. Understanding these risks is the first step in securing your Git workflow.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "risks", "label": "Git Security Risks" },
+              { "id": "secrets", "label": "Secrets in Code" },
+              { "id": "history", "label": "Historical Secrets" },
+              { "id": "access", "label": "Unauthorized Access" },
+              { "id": "tampering", "label": "Code Tampering" },
+              { "id": "malicious", "label": "Malicious Commits" }
+            ],
+            "edges": [
+              { "from": "risks", "to": "secrets" },
+              { "from": "risks", "to": "history" },
+              { "from": "risks", "to": "access" },
+              { "from": "risks", "to": "tampering" },
+              { "from": "risks", "to": "malicious" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Preventing Secrets in Code",
+        "content": "Secrets such as API keys, passwords, and tokens should never be committed to your Git repository. Use environment variables, secret management tools, or .gitignore to keep them out of your codebase.",
+        "commands": [
+          {
+            "command": "echo \".env\n*.pem\n*.key\nsecrets/\" >> .gitignore",
+            "description": "Add sensitive files to .gitignore",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check that sensitive files are ignored",
+            "expectedOutput": "On branch main\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\t.gitignore\n\nnothing added to commit but untracked files present (use \"git add\" to track)"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": ".env.example",
+            "description": "Create an example environment file",
+            "content": "# Example environment variables file\n# Copy this file to .env and fill in your actual values\n\nAPI_KEY=your_api_key_here\nDATABASE_URL=your_database_url_here\nSECRET_TOKEN=your_secret_token_here"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Environment Variables vs. Hardcoded Secrets",
+          "content": "Using environment variables instead of hardcoding secrets provides several security benefits:\n\n1. **Separation of Code and Configuration**: Keeps sensitive data out of your codebase\n2. **Environment-Specific Values**: Easily use different values in development, staging, and production\n3. **Limited Exposure**: Reduces the risk of accidentally exposing secrets\n4. **Easier Rotation**: Makes it easier to update secrets without changing code\n\nThis approach follows the principle of least privilege and is a key part of secure application development.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "app", "label": "Application" },
+                { "id": "code", "label": "Code Repository" },
+                { "id": "env", "label": "Environment Variables" },
+                { "id": "secrets", "label": "Secrets Manager" },
+                { "id": "dev", "label": "Development Env" },
+                { "id": "prod", "label": "Production Env" }
+              ],
+              "edges": [
+                { "from": "app", "to": "code", "label": "uses" },
+                { "from": "app", "to": "env", "label": "reads from" },
+                { "from": "env", "to": "secrets", "label": "populated from" },
+                { "from": "dev", "to": "env", "label": "has own" },
+                { "from": "prod", "to": "env", "label": "has own" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Cleaning Sensitive Data from History",
+        "content": "If sensitive data has been committed to your repository, you need to remove it from the Git history. Tools like git-filter-repo can help you rewrite history to remove sensitive files or data.",
+        "commands": [
+          {
+            "command": "git log --all --grep=\"password\"",
+            "description": "Search for commits that might contain passwords",
+            "expectedOutput": "commit 1a2b3c4d5e6f7g8h9i0j\nAuthor: Developer <dev@example.com>\nDate:   Mon Jan 1 12:00:00 2023 -0500\n\n    Update database password in config file"
+          },
+          {
+            "command": "pip install git-filter-repo",
+            "description": "Install git-filter-repo tool",
+            "expectedOutput": "Successfully installed git-filter-repo-2.34.0"
+          },
+          {
+            "command": "git filter-repo --path config.json --invert-paths",
+            "description": "Remove config.json from all commits",
+            "expectedOutput": "Parsed 42 commits\nNew history written in 0.25 seconds; now repacking/cleaning..."
+          },
+          {
+            "command": "git push --force",
+            "description": "Force push the cleaned history",
+            "expectedOutput": "Enumerating objects: 123, done.\nCounting objects: 100% (123/123), done.\nDelta compression using up to 8 threads\nCompressing objects: 100% (100/100), done.\nWriting objects: 100% (123/123), 10.5 KiB | 2.1 MiB/s, done.\nTotal 123 (delta 80), reused 0 (delta 0), pack-reused 0\nTo github.com:username/repo.git\n + 1a2b3c4...7g8h9i0 main -> main (forced update)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Git History Rewriting Considerations",
+          "content": "Rewriting Git history to remove sensitive data has important implications:\n\n1. **Destructive Operation**: History rewriting changes commit hashes and can't be undone\n2. **Team Coordination**: All team members need to update their local repositories\n3. **Force Push Required**: You must use `--force` to push rewritten history\n4. **Not Foolproof**: Data might still exist in GitHub caches or forks\n\nAfter cleaning history, it's best practice to treat any exposed secrets as compromised and rotate them immediately.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "original", "label": "Original History" },
+                { "id": "sensitive", "label": "Sensitive Data" },
+                { "id": "filter", "label": "git filter-repo" },
+                { "id": "cleaned", "label": "Cleaned History" },
+                { "id": "remote", "label": "Remote Repository" },
+                { "id": "team", "label": "Team Members" }
+              ],
+              "edges": [
+                { "from": "original", "to": "sensitive", "label": "contains" },
+                { "from": "original", "to": "filter", "label": "input to" },
+                { "from": "filter", "to": "cleaned", "label": "produces" },
+                { "from": "cleaned", "to": "remote", "label": "force push to" },
+                { "from": "remote", "to": "team", "label": "pull by" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Secure Authentication",
+        "content": "Using secure authentication methods like SSH keys or personal access tokens is essential for protecting your Git repositories from unauthorized access.",
+        "commands": [
+          {
+            "command": "ssh-keygen -t ed25519 -C \"your_email@example.com\"",
+            "description": "Generate a new SSH key",
+            "expectedOutput": "Generating public/private ed25519 key pair.\nEnter file in which to save the key (/home/user/.ssh/id_ed25519): \nEnter passphrase (empty for no passphrase): \nEnter same passphrase again: \nYour identification has been saved in /home/user/.ssh/id_ed25519\nYour public key has been saved in /home/user/.ssh/id_ed25519.pub\nThe key fingerprint is:\nSHA256:abcdefghijklmnopqrstuvwxyz1234567890ABCDEF your_email@example.com\nThe key's randomart image is:\n+--[ED25519 256]--+\n|                 |\n|                 |\n|                 |\n|                 |\n|                 |\n|                 |\n|                 |\n|                 |\n|                 |\n+----[SHA256]-----+"
+          },
+          {
+            "command": "cat ~/.ssh/id_ed25519.pub",
+            "description": "Display your public SSH key",
+            "expectedOutput": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8zT1JJcTJnMU5XNmM4cXJLQU5JdWxXSVNGQ0QxYWFh your_email@example.com"
+          },
+          {
+            "command": "git config --global credential.helper cache",
+            "description": "Cache credentials temporarily",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Authentication Methods Comparison",
+          "content": "Git supports several authentication methods, each with different security characteristics:\n\n1. **SSH Keys**: Most secure, uses public-key cryptography\n2. **HTTPS with Personal Access Tokens**: Good security, easier to use with some tools\n3. **HTTPS with Username/Password**: Least secure, being phased out by many Git providers\n4. **GPG Commit Signing**: Adds verification that commits are authentic\n\nUsing SSH keys with a passphrase provides the best balance of security and usability for most developers.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "auth", "label": "Git Authentication" },
+                { "id": "ssh", "label": "SSH Keys" },
+                { "id": "pat", "label": "Personal Access Tokens" },
+                { "id": "basic", "label": "Username/Password" },
+                { "id": "gpg", "label": "GPG Signing" },
+                { "id": "security", "label": "Security Level" }
+              ],
+              "edges": [
+                { "from": "auth", "to": "ssh" },
+                { "from": "auth", "to": "pat" },
+                { "from": "auth", "to": "basic" },
+                { "from": "auth", "to": "gpg" },
+                { "from": "ssh", "to": "security", "label": "high" },
+                { "from": "pat", "to": "security", "label": "medium" },
+                { "from": "basic", "to": "security", "label": "low" },
+                { "from": "gpg", "to": "security", "label": "verification" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

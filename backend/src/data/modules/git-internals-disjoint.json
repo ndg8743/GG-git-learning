@@ -1,0 +1,205 @@
+{
+  "id": "git-internals-disjoint",
+  "title": "Git Internals: Disjoint Sets",
+  "description": "Merge tracking with Union-Find data structures",
+  "content": {
+    "overview": "Disjoint-set data structures (also known as Union-Find) are used to track sets of elements partitioned into non-overlapping subsets. In Git, similar concepts are used for efficient merge tracking and conflict resolution. This module explores how Git uses disjoint-set-like structures to manage branches and merges.",
+    "steps": [
+      {
+        "title": "Understanding Disjoint Sets",
+        "content": "A disjoint-set data structure maintains a collection of disjoint (non-overlapping) sets. It provides operations to add new sets, merge existing sets, and determine which set an element belongs to.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "ds", "label": "Disjoint Sets" },
+              { "id": "set1", "label": "Set 1" },
+              { "id": "set2", "label": "Set 2" },
+              { "id": "set3", "label": "Set 3" },
+              { "id": "a", "label": "A" },
+              { "id": "b", "label": "B" },
+              { "id": "c", "label": "C" },
+              { "id": "d", "label": "D" },
+              { "id": "e", "label": "E" },
+              { "id": "f", "label": "F" },
+              { "id": "g", "label": "G" }
+            ],
+            "edges": [
+              { "from": "ds", "to": "set1" },
+              { "from": "ds", "to": "set2" },
+              { "from": "ds", "to": "set3" },
+              { "from": "set1", "to": "a" },
+              { "from": "set1", "to": "b" },
+              { "from": "set1", "to": "c" },
+              { "from": "set2", "to": "d" },
+              { "from": "set2", "to": "e" },
+              { "from": "set3", "to": "f" },
+              { "from": "set3", "to": "g" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Union-Find Operations",
+        "content": "The Union-Find data structure supports three main operations: MakeSet (create a new set), Find (determine which set an element belongs to), and Union (merge two sets).",
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": "union-find.js",
+            "description": "Create a simple Union-Find implementation",
+            "content": "class UnionFind {\n  constructor() {\n    // Each element starts as its own parent\n    this.parent = {};\n    // Track the size/rank of each set for union by rank\n    this.rank = {};\n  }\n\n  // Create a new set with a single element\n  makeSet(x) {\n    if (!(x in this.parent)) {\n      this.parent[x] = x;\n      this.rank[x] = 0;\n    }\n  }\n\n  // Find the representative (root) of the set containing x\n  // Uses path compression for efficiency\n  find(x) {\n    if (!(x in this.parent)) {\n      this.makeSet(x);\n    }\n\n    // Path compression: make all nodes on the path\n    // point directly to the root\n    if (x !== this.parent[x]) {\n      this.parent[x] = this.find(this.parent[x]);\n    }\n\n    return this.parent[x];\n  }\n\n  // Merge the sets containing x and y\n  // Uses union by rank for efficiency\n  union(x, y) {\n    const rootX = this.find(x);\n    const rootY = this.find(y);\n\n    // Already in the same set\n    if (rootX === rootY) {\n      return;\n    }\n\n    // Union by rank: attach smaller rank tree under root of higher rank tree\n    if (this.rank[rootX] < this.rank[rootY]) {\n      this.parent[rootX] = rootY;\n    } else if (this.rank[rootX] > this.rank[rootY]) {\n      this.parent[rootY] = rootX;\n    } else {\n      // Same rank, make one the parent and increment its rank\n      this.parent[rootY] = rootX;\n      this.rank[rootX]++;\n    }\n  }\n\n  // Check if two elements are in the same set\n  connected(x, y) {\n    return this.find(x) === this.find(y);\n  }\n\n  // Get all sets as arrays of elements\n  getSets() {\n    const sets = {};\n    \n    // Group elements by their root\n    for (const element in this.parent) {\n      const root = this.find(element);\n      if (!sets[root]) {\n        sets[root] = [];\n      }\n      sets[root].push(element);\n    }\n    \n    // Convert to array of sets\n    return Object.values(sets);\n  }\n}\n\n// Example usage\nconst uf = new UnionFind();\n\n// Create initial sets\nfor (const element of ['A', 'B', 'C', 'D', 'E', 'F', 'G']) {\n  uf.makeSet(element);\n}\n\n// Perform some unions\nuf.union('A', 'B');\nuf.union('B', 'C');\nuf.union('D', 'E');\nuf.union('F', 'G');\n\nconsole.log('Sets after initial unions:', uf.getSets());\nconsole.log('Are A and C connected?', uf.connected('A', 'C'));\nconsole.log('Are A and D connected?', uf.connected('A', 'D'));\n\n// Merge two sets\nuf.union('C', 'D');\nconsole.log('Sets after merging C and D:', uf.getSets());\nconsole.log('Are A and E connected now?', uf.connected('A', 'E'));"
+          }
+        ],
+        "commands": [
+          {
+            "command": "node union-find.js",
+            "description": "Run the Union-Find implementation",
+            "expectedOutput": "Sets after initial unions: [ [ 'A', 'B', 'C' ], [ 'D', 'E' ], [ 'F', 'G' ] ]\nAre A and C connected? true\nAre A and D connected? false\nSets after merging C and D: [ [ 'A', 'B', 'C', 'D', 'E' ], [ 'F', 'G' ] ]\nAre A and E connected now? true"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Optimizing Union-Find",
+          "content": "Two key optimizations make Union-Find operations very efficient:\n\n1. **Path Compression**: During Find operations, make each node on the path point directly to the root, flattening the tree structure\n2. **Union by Rank**: When merging sets, attach the smaller tree to the root of the larger tree to minimize tree height\n\nWith these optimizations, operations become nearly constant time (technically O(α(n)), where α is the inverse Ackermann function, which grows extremely slowly).",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "before", "label": "Before Path Compression" },
+                { "id": "after", "label": "After Path Compression" },
+                { "id": "a1", "label": "A" },
+                { "id": "b1", "label": "B" },
+                { "id": "c1", "label": "C" },
+                { "id": "d1", "label": "D" },
+                { "id": "e1", "label": "E" },
+                { "id": "a2", "label": "A" },
+                { "id": "b2", "label": "B" },
+                { "id": "c2", "label": "C" },
+                { "id": "d2", "label": "D" },
+                { "id": "e2", "label": "E" }
+              ],
+              "edges": [
+                { "from": "before", "to": "a1" },
+                { "from": "a1", "to": "b1" },
+                { "from": "b1", "to": "c1" },
+                { "from": "c1", "to": "d1" },
+                { "from": "d1", "to": "e1" },
+                
+                { "from": "after", "to": "a2" },
+                { "from": "b2", "to": "a2" },
+                { "from": "c2", "to": "a2" },
+                { "from": "d2", "to": "a2" },
+                { "from": "e2", "to": "a2" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Disjoint Sets in Git's Merge Tracking",
+        "content": "Git uses concepts similar to disjoint sets to track which branches have been merged and which commits are reachable from different branches.",
+        "commands": [
+          {
+            "command": "git branch --merged main",
+            "description": "List branches that have been merged into main",
+            "expectedOutput": "  feature-a\n  feature-b\n* main"
+          },
+          {
+            "command": "git branch --no-merged main",
+            "description": "List branches that haven't been merged into main",
+            "expectedOutput": "  feature-c\n  feature-d"
+          },
+          {
+            "command": "git merge-base main feature-c",
+            "description": "Find the common ancestor of two branches",
+            "expectedOutput": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Git's Commit Reachability",
+          "content": "Git needs to efficiently determine which commits are reachable from which branches. This is conceptually similar to the connected() operation in Union-Find:\n\n1. **Branch Tracking**: Git tracks which branches have been fully merged into others\n2. **Commit Reachability**: Git determines if a commit is an ancestor of another commit\n3. **Merge-Base Finding**: Git finds the best common ancestor of two commits\n\nThese operations are essential for merge operations, branch management, and determining which commits to push or fetch.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "main", "label": "main" },
+                { "id": "feature", "label": "feature" },
+                { "id": "c1", "label": "Commit 1" },
+                { "id": "c2", "label": "Commit 2" },
+                { "id": "c3", "label": "Commit 3" },
+                { "id": "c4", "label": "Commit 4" },
+                { "id": "c5", "label": "Commit 5" },
+                { "id": "c6", "label": "Commit 6" },
+                { "id": "c7", "label": "Commit 7" },
+                { "id": "merge", "label": "Merge Commit" }
+              ],
+              "edges": [
+                { "from": "main", "to": "merge" },
+                { "from": "feature", "to": "c7" },
+                { "from": "merge", "to": "c4" },
+                { "from": "merge", "to": "c7" },
+                { "from": "c4", "to": "c3" },
+                { "from": "c3", "to": "c2" },
+                { "from": "c2", "to": "c1" },
+                { "from": "c7", "to": "c6" },
+                { "from": "c6", "to": "c5" },
+                { "from": "c5", "to": "c2" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Conflict Resolution with Disjoint Sets",
+        "content": "When merging branches, Git needs to determine which changes conflict and which can be automatically merged. Disjoint-set-like structures help track which parts of files have been modified by different branches.",
+        "commands": [
+          {
+            "command": "git checkout feature-branch",
+            "description": "Switch to a feature branch",
+            "expectedOutput": "Switched to branch 'feature-branch'"
+          },
+          {
+            "command": "git merge main",
+            "description": "Merge main into the feature branch",
+            "expectedOutput": "Auto-merging file.txt\nCONFLICT (content): Merge conflict in file.txt\nAutomatic merge failed; fix conflicts and then commit the result."
+          },
+          {
+            "command": "git diff --name-only --diff-filter=U",
+            "description": "List files with merge conflicts",
+            "expectedOutput": "file.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Three-Way Merge Algorithm",
+          "content": "Git's merge algorithm uses a three-way merge approach that conceptually relates to disjoint sets:\n\n1. **Common Ancestor**: Find the merge base (common ancestor) of the two branches\n2. **Change Sets**: Identify changes made in each branch relative to the common ancestor\n3. **Disjoint Changes**: Changes to different parts of the file can be automatically merged\n4. **Overlapping Changes**: Changes to the same parts of the file result in conflicts\n\nThis approach allows Git to automatically merge non-conflicting changes while identifying conflicts that require manual resolution.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "base", "label": "Common Ancestor" },
+                { "id": "ours", "label": "Our Branch" },
+                { "id": "theirs", "label": "Their Branch" },
+                { "id": "merged", "label": "Merged Result" },
+                { "id": "changes1", "label": "Our Changes" },
+                { "id": "changes2", "label": "Their Changes" },
+                { "id": "disjoint", "label": "Disjoint Changes" },
+                { "id": "conflict", "label": "Conflicting Changes" }
+              ],
+              "edges": [
+                { "from": "base", "to": "ours" },
+                { "from": "base", "to": "theirs" },
+                { "from": "ours", "to": "changes1" },
+                { "from": "theirs", "to": "changes2" },
+                { "from": "changes1", "to": "disjoint", "label": "some" },
+                { "from": "changes2", "to": "disjoint", "label": "some" },
+                { "from": "changes1", "to": "conflict", "label": "some" },
+                { "from": "changes2", "to": "conflict", "label": "some" },
+                { "from": "disjoint", "to": "merged", "label": "auto-merge" },
+                { "from": "conflict", "to": "merged", "label": "manual resolution" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

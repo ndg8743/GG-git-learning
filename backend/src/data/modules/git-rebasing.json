@@ -1,0 +1,229 @@
+{
+  "id": "git-rebasing",
+  "title": "Rebasing and History Manipulation",
+  "description": "Interactive rebasing and squashing commits",
+  "content": {
+    "overview": "Git rebasing is a powerful technique for manipulating commit history. Unlike merging, which preserves the branch structure, rebasing rewrites history by moving or combining commits. This module covers rebasing techniques, interactive rebasing, squashing commits, and best practices for when and how to rewrite history.",
+    "steps": [
+      {
+        "title": "Understanding Rebasing",
+        "content": "Rebasing is the process of moving or combining a sequence of commits to a new base commit. It's an alternative to merging that results in a linear history.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "main1", "label": "main (C1)" },
+              { "id": "main2", "label": "main (C2)" },
+              { "id": "main3", "label": "main (C3)" },
+              { "id": "feature1", "label": "feature (F1)" },
+              { "id": "feature2", "label": "feature (F2)" },
+              { "id": "feature1r", "label": "feature (F1')" },
+              { "id": "feature2r", "label": "feature (F2')" }
+            ],
+            "edges": [
+              { "from": "main1", "to": "main2" },
+              { "from": "main2", "to": "main3" },
+              { "from": "main1", "to": "feature1" },
+              { "from": "feature1", "to": "feature2" },
+              { "from": "main3", "to": "feature1r", "label": "after rebase" },
+              { "from": "feature1r", "to": "feature2r", "label": "after rebase" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Basic Rebasing",
+        "content": "Basic rebasing moves a branch to a new base commit, replaying the commits on top of the new base.",
+        "commands": [
+          {
+            "command": "git checkout feature-branch",
+            "description": "Switch to the feature branch",
+            "expectedOutput": "Switched to branch 'feature-branch'"
+          },
+          {
+            "command": "git rebase main",
+            "description": "Rebase feature-branch onto main",
+            "expectedOutput": "First, rewinding head to replay your work on top of it...\nApplying: Add feature X\nApplying: Fix bug in feature X"
+          },
+          {
+            "command": "git log --oneline -n 4",
+            "description": "View the commit history after rebasing",
+            "expectedOutput": "a1b2c3d Add feature X\n7g8h9i0 Fix bug in feature X\ne5f6g7h Update documentation\n1a2b3c4 Implement new API"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Rebasing Works",
+          "content": "When you rebase, Git performs these steps:\n\n1. **Find the common ancestor** of the branch being rebased and the target base\n2. **Save the changes** introduced by commits in the branch as temporary patches\n3. **Reset the branch** to the target base commit\n4. **Apply each patch** one by one to create new commits\n\nThe result is as if you had originally branched from the new base. The original commits are no longer referenced and will eventually be garbage collected.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "base", "label": "Common Ancestor" },
+                { "id": "main1", "label": "Main Commit 1" },
+                { "id": "main2", "label": "Main Commit 2" },
+                { "id": "feature1", "label": "Feature Commit 1" },
+                { "id": "feature2", "label": "Feature Commit 2" },
+                { "id": "patch1", "label": "Patch 1" },
+                { "id": "patch2", "label": "Patch 2" },
+                { "id": "feature1r", "label": "New Feature Commit 1" },
+                { "id": "feature2r", "label": "New Feature Commit 2" }
+              ],
+              "edges": [
+                { "from": "base", "to": "main1" },
+                { "from": "main1", "to": "main2" },
+                { "from": "base", "to": "feature1" },
+                { "from": "feature1", "to": "feature2" },
+                { "from": "feature1", "to": "patch1", "label": "extract" },
+                { "from": "feature2", "to": "patch2", "label": "extract" },
+                { "from": "main2", "to": "feature1r", "label": "apply patch" },
+                { "from": "feature1r", "to": "feature2r", "label": "apply patch" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Interactive Rebasing",
+        "content": "Interactive rebasing gives you control over how each commit is transferred to the new base. You can reorder, edit, squash, or drop commits during the process.",
+        "commands": [
+          {
+            "command": "git checkout feature-branch",
+            "description": "Switch to the feature branch",
+            "expectedOutput": "Switched to branch 'feature-branch'"
+          },
+          {
+            "command": "git rebase -i HEAD~3",
+            "description": "Start an interactive rebase of the last 3 commits",
+            "expectedOutput": "# Opens your editor with something like:\n#\n# pick a1b2c3d Add feature X\n# pick e5f6g7h Fix typo in documentation\n# pick 7g8h9i0 Fix bug in feature X\n#\n# Commands:\n# p, pick <commit> = use commit\n# r, reword <commit> = use commit, but edit the commit message\n# e, edit <commit> = use commit, but stop for amending\n# s, squash <commit> = use commit, but meld into previous commit\n# f, fixup <commit> = like \"squash\", but discard this commit's log message\n# x, exec <command> = run command (the rest of the line) using shell\n# b, break = stop here (continue rebase later with 'git rebase --continue')\n# d, drop <commit> = remove commit\n# l, label <label> = label current HEAD with a name\n# t, reset <label> = reset HEAD to a label\n# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]\n# .\n# These lines can be re-ordered; they are executed from top to bottom.\n#\n# If you remove a line here THAT COMMIT WILL BE LOST.\n#\n# However, if you remove everything, the rebase will be aborted.\n#"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": "rebase-commands.txt",
+            "description": "Create a reference for interactive rebase commands",
+            "content": "# Interactive Rebase Commands\n\n- pick: use the commit as is\n- reword: use the commit but edit the commit message\n- edit: use the commit but stop to amend it\n- squash: combine the commit with the previous one and edit the combined message\n- fixup: combine the commit with the previous one and discard its message\n- drop: remove the commit entirely\n- exec: run a shell command\n- break: stop the rebase at this point\n- label: create a label for the current HEAD\n- reset: reset HEAD to a label\n- merge: create a merge commit\n\n# Common Interactive Rebase Workflows\n\n## Squashing multiple commits\n\npick 01ab234 First commit\nsquash 23cd456 Second commit\nsquash 45ef678 Third commit\n\n## Reordering commits\n\npick 45ef678 Third commit\npick 01ab234 First commit\npick 23cd456 Second commit\n\n## Editing a commit message\n\npick 01ab234 First commit\nreword 23cd456 Second commit\npick 45ef678 Third commit\n\n## Splitting a commit\n\npick 01ab234 First commit\nedit 23cd456 Second commit\npick 45ef678 Third commit\n\n# After stopping at the 'edit' commit:\ngit reset HEAD^\ngit add -p\ngit commit -m \"First part\"\ngit add .\ngit commit -m \"Second part\"\ngit rebase --continue"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Interactive Rebase Workflow",
+          "content": "The interactive rebase workflow consists of these steps:\n\n1. **Start the rebase** with `git rebase -i <base>`\n2. **Edit the rebase plan** in your text editor\n3. **Save and close** the editor to begin the rebase\n4. **Resolve any conflicts** that arise during the rebase\n5. **Continue the rebase** with `git rebase --continue` after resolving conflicts\n\nInteractive rebasing is powerful for cleaning up history before sharing your work with others.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "start", "label": "Start Rebase" },
+                { "id": "plan", "label": "Edit Rebase Plan" },
+                { "id": "execute", "label": "Execute Rebase" },
+                { "id": "conflict", "label": "Conflict?" },
+                { "id": "resolve", "label": "Resolve Conflict" },
+                { "id": "continue", "label": "Continue Rebase" },
+                { "id": "complete", "label": "Rebase Complete" }
+              ],
+              "edges": [
+                { "from": "start", "to": "plan" },
+                { "from": "plan", "to": "execute" },
+                { "from": "execute", "to": "conflict" },
+                { "from": "conflict", "to": "resolve", "label": "yes" },
+                { "from": "conflict", "to": "complete", "label": "no" },
+                { "from": "resolve", "to": "continue" },
+                { "from": "continue", "to": "conflict" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Squashing Commits",
+        "content": "Squashing combines multiple commits into a single commit. This is useful for creating a clean, logical history before sharing your work.",
+        "commands": [
+          {
+            "command": "git checkout feature-branch",
+            "description": "Switch to the feature branch",
+            "expectedOutput": "Switched to branch 'feature-branch'"
+          },
+          {
+            "command": "git log --oneline -n 4",
+            "description": "View the commit history before squashing",
+            "expectedOutput": "a1b2c3d Fix typo in documentation\ne5f6g7h Add more tests\n7g8h9i0 Implement feature X\n1a2b3c4 Update dependencies"
+          },
+          {
+            "command": "git reset --soft HEAD~3",
+            "description": "Soft reset to combine the last 3 commits",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Implement feature X with tests and documentation\"",
+            "description": "Create a new commit with the combined changes",
+            "expectedOutput": "[feature-branch a1b2c3d] Implement feature X with tests and documentation\n 3 files changed, 150 insertions(+), 10 deletions(-)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Squashing Methods Comparison",
+          "content": "There are several ways to squash commits in Git:\n\n1. **Interactive Rebase**: Use `rebase -i` and mark commits as 'squash' or 'fixup'\n2. **Soft Reset**: Use `reset --soft` and then create a new commit\n3. **Merge with Squash**: Use `merge --squash` to combine changes without a merge commit\n\nEach method has its advantages:\n- Interactive rebase gives the most control\n- Soft reset is quick for simple cases\n- Squash merge is useful when merging branches",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "before", "label": "Before Squashing" },
+                { "id": "after", "label": "After Squashing" },
+                { "id": "c1", "label": "Commit 1" },
+                { "id": "c2", "label": "Commit 2" },
+                { "id": "c3", "label": "Commit 3" },
+                { "id": "c4", "label": "Commit 4" },
+                { "id": "squashed", "label": "Squashed Commit" }
+              ],
+              "edges": [
+                { "from": "before", "to": "c1" },
+                { "from": "c1", "to": "c2" },
+                { "from": "c2", "to": "c3" },
+                { "from": "c3", "to": "c4" },
+                { "from": "after", "to": "c1" },
+                { "from": "c1", "to": "squashed" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Rebase Best Practices",
+        "content": "Rebasing is powerful but can cause problems if used incorrectly. Follow these best practices to avoid issues when rewriting history.",
+        "commands": [
+          {
+            "command": "git pull --rebase origin main",
+            "description": "Pull with rebase instead of merge",
+            "expectedOutput": "First, rewinding head to replay your work on top of it...\nApplying: Add feature X\nApplying: Fix bug in feature X"
+          },
+          {
+            "command": "git push --force-with-lease",
+            "description": "Force push with a safety check",
+            "expectedOutput": "Counting objects: 5, done.\nDelta compression using up to 8 threads.\nCompressing objects: 100% (3/3), done.\nWriting objects: 100% (3/3), 353 bytes | 353.00 KiB/s, done.\nTotal 3 (delta 2), reused 0 (delta 0)\nTo github.com:user/repo.git\n + a1b2c3d...e5f6g7h feature-branch -> feature-branch (forced update)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "The Golden Rule of Rebasing",
+          "content": "The golden rule of rebasing is: **Never rebase commits that have been pushed to a shared repository unless you're sure no one has based work on them.**\n\nOther best practices include:\n\n1. **Use rebase for local cleanup** before sharing your work\n2. **Use merge for public branches** that others might be working on\n3. **Use `--force-with-lease`** instead of `--force` when pushing rebased branches\n4. **Communicate with your team** when you need to rewrite shared history\n5. **Keep rebases small and focused** to minimize conflicts\n\nFollowing these practices will help you use rebasing effectively while avoiding common pitfalls.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "local", "label": "Local Commits" },
+                { "id": "shared", "label": "Shared Commits" },
+                { "id": "rebase", "label": "Rebase" },
+                { "id": "merge", "label": "Merge" },
+                { "id": "safe", "label": "Safe" },
+                { "id": "risky", "label": "Risky" }
+              ],
+              "edges": [
+                { "from": "local", "to": "rebase", "label": "use" },
+                { "from": "shared", "to": "merge", "label": "use" },
+                { "from": "local", "to": "safe", "label": "is" },
+                { "from": "shared", "to": "risky", "label": "is" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

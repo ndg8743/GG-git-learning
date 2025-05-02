@@ -10,7 +10,7 @@ const crypto = require('crypto');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 54321; // Random high port number
+const PORT = process.env.PORT || 38765; // Random high port number
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'your-webhook-secret';
 
 // Middleware

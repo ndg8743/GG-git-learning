@@ -1,0 +1,211 @@
+{
+  "id": "git-bisect",
+  "title": "Git Bisect and Debugging",
+  "description": "Binary search for bugs in your history",
+  "content": {
+    "overview": "Git bisect is a powerful debugging tool that uses binary search to find the commit that introduced a bug. By systematically testing commits between a known good state and a known bad state, bisect can quickly identify when a problem was introduced, even in repositories with thousands of commits.",
+    "steps": [
+      {
+        "title": "Understanding Git Bisect",
+        "content": "Git bisect helps you find the commit that introduced a bug by using binary search. You mark commits as 'good' (working) or 'bad' (broken), and Git helps you navigate through the commit history to find the first bad commit.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "start", "label": "Start Bisect" },
+              { "id": "good", "label": "Known Good Commit" },
+              { "id": "bad", "label": "Known Bad Commit" },
+              { "id": "middle", "label": "Middle Commit" },
+              { "id": "test", "label": "Test Commit" },
+              { "id": "mark", "label": "Mark Good/Bad" },
+              { "id": "found", "label": "First Bad Commit Found" }
+            ],
+            "edges": [
+              { "from": "start", "to": "good" },
+              { "from": "start", "to": "bad" },
+              { "from": "good", "to": "middle" },
+              { "from": "bad", "to": "middle" },
+              { "from": "middle", "to": "test" },
+              { "from": "test", "to": "mark" },
+              { "from": "mark", "to": "middle", "label": "repeat" },
+              { "from": "mark", "to": "found", "label": "when done" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Basic Bisect Workflow",
+        "content": "The basic workflow for using git bisect involves starting the bisect process, marking known good and bad commits, and then testing and marking commits until the first bad commit is found.",
+        "commands": [
+          {
+            "command": "git bisect start",
+            "description": "Start the bisect process",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git bisect bad",
+            "description": "Mark the current commit as bad",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git bisect good v1.0",
+            "description": "Mark a known good commit or tag",
+            "expectedOutput": "Bisecting: 50 revisions left to test after this (roughly 6 steps)\n[a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6] Add new feature X"
+          },
+          {
+            "command": "git bisect good",
+            "description": "Mark the current commit as good after testing",
+            "expectedOutput": "Bisecting: 25 revisions left to test after this (roughly 5 steps)\n[b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7] Refactor authentication module"
+          },
+          {
+            "command": "git bisect bad",
+            "description": "Mark the current commit as bad after testing",
+            "expectedOutput": "Bisecting: 12 revisions left to test after this (roughly 4 steps)\n[c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8] Update dependencies"
+          },
+          {
+            "command": "git bisect reset",
+            "description": "End the bisect process and return to the original HEAD",
+            "expectedOutput": "Previous HEAD position was c3d4e5f Update dependencies\nSwitched to branch 'main'"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Binary Search Algorithm",
+          "content": "Git bisect uses a binary search algorithm to efficiently find the first bad commit:\n\n1. **Start with a range**: Define a range between a known good commit and a known bad commit\n2. **Check the middle**: Git checks out a commit in the middle of the range\n3. **Narrow the range**: Based on whether you mark the commit as good or bad, Git narrows the search range\n4. **Repeat**: Continue the process until the first bad commit is found\n\nThis approach is very efficient, requiring only log₂(n) steps to search through n commits.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "c1", "label": "Commit 1 (Good)" },
+                { "id": "c2", "label": "Commit 2" },
+                { "id": "c3", "label": "Commit 3" },
+                { "id": "c4", "label": "Commit 4" },
+                { "id": "c5", "label": "Commit 5" },
+                { "id": "c6", "label": "Commit 6" },
+                { "id": "c7", "label": "Commit 7" },
+                { "id": "c8", "label": "Commit 8 (Bad)" },
+                { "id": "step1", "label": "Step 1: Test C4" },
+                { "id": "step2", "label": "Step 2: Test C6" },
+                { "id": "step3", "label": "Step 3: Test C5" },
+                { "id": "result", "label": "Result: C5 is first bad commit" }
+              ],
+              "edges": [
+                { "from": "c1", "to": "c2" },
+                { "from": "c2", "to": "c3" },
+                { "from": "c3", "to": "c4" },
+                { "from": "c4", "to": "c5" },
+                { "from": "c5", "to": "c6" },
+                { "from": "c6", "to": "c7" },
+                { "from": "c7", "to": "c8" },
+                { "from": "step1", "to": "c4", "label": "good" },
+                { "from": "step2", "to": "c6", "label": "bad" },
+                { "from": "step3", "to": "c5", "label": "bad" },
+                { "from": "c5", "to": "result" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Automated Bisect",
+        "content": "Git bisect can be automated with a script or command that tests each commit and returns a success or failure status.",
+        "commands": [
+          {
+            "command": "git bisect start HEAD v1.0",
+            "description": "Start bisect with a bad and good commit",
+            "expectedOutput": "Bisecting: 50 revisions left to test after this (roughly 6 steps)\n[a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6] Add new feature X"
+          },
+          {
+            "command": "git bisect run ./test.sh",
+            "description": "Run an automated test script for each commit",
+            "expectedOutput": "running ./test.sh\nBisecting: 25 revisions left to test after this (roughly 5 steps)\n[b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7] Refactor authentication module\nrunning ./test.sh\nBisecting: 12 revisions left to test after this (roughly 4 steps)\n[c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8] Update dependencies\n...\n7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3 is the first bad commit\ncommit 7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3\nAuthor: Developer <dev@example.com>\nDate:   Thu Jan 1 12:00:00 2023 -0500\n\n    Update API endpoint URLs\n\nbisect run success"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": "test.sh",
+            "description": "Create a simple test script for automated bisect",
+            "content": "#!/bin/bash\n\n# Example test script for git bisect\n# Returns 0 (success) if the test passes, non-zero (failure) if it fails\n\n# Build the project\nnpm run build\n\n# Run the tests\nnpm test -- --grep=\"API Authentication\"\n\n# Exit with the status of the test command\nexit $?"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Automated Bisect Requirements",
+          "content": "For automated bisect to work effectively:\n\n1. **Test script must be executable** and have the proper permissions\n2. **Exit code matters**: 0 means good/passing, 125 means skip this commit, anything else means bad/failing\n3. **Tests should be deterministic** and not depend on external factors\n4. **Script should handle build failures** gracefully\n\nAutomated bisect is especially valuable for large repositories or when the test process is complex.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "bisect", "label": "git bisect run" },
+                { "id": "script", "label": "Test Script" },
+                { "id": "build", "label": "Build Project" },
+                { "id": "test", "label": "Run Tests" },
+                { "id": "exit0", "label": "Exit 0 (Good)" },
+                { "id": "exit125", "label": "Exit 125 (Skip)" },
+                { "id": "exitOther", "label": "Exit Non-0/125 (Bad)" }
+              ],
+              "edges": [
+                { "from": "bisect", "to": "script" },
+                { "from": "script", "to": "build" },
+                { "from": "build", "to": "test" },
+                { "from": "test", "to": "exit0" },
+                { "from": "test", "to": "exit125" },
+                { "from": "test", "to": "exitOther" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Bisect Strategies",
+        "content": "Effective use of git bisect requires good strategies for testing and identifying bugs.",
+        "commands": [
+          {
+            "command": "git log --oneline",
+            "description": "View commit history to identify potential good/bad commits",
+            "expectedOutput": "a1b2c3d (HEAD -> main) Fix typo in documentation\nb2c3d4e Add new feature Y\nc3d4e5f Update dependencies\nd4e5f6g Refactor authentication module\ne5f6g7h Fix bug in error handling\nf6g7h8i Add new feature X\ng7h8i9j Initial commit"
+          },
+          {
+            "command": "git show c3d4e5f",
+            "description": "Examine a specific commit",
+            "expectedOutput": "commit c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8\nAuthor: Developer <dev@example.com>\nDate:   Wed Jan 1 12:00:00 2023 -0500\n\n    Update dependencies\n\ndiff --git a/package.json b/package.json\nindex 1234567..abcdefg 100644\n--- a/package.json\n+++ b/package.json\n@@ -10,11 +10,11 @@\n   \"dependencies\": {\n-    \"express\": \"^4.17.1\",\n-    \"lodash\": \"^4.17.20\",\n-    \"axios\": \"^0.21.1\"\n+    \"express\": \"^4.18.2\",\n+    \"lodash\": \"^4.17.21\",\n+    \"axios\": \"^1.3.4\"\n   },\n   \"devDependencies\": {\n-    \"jest\": \"^26.6.3\",\n-    \"eslint\": \"^7.18.0\"\n+    \"jest\": \"^29.5.0\",\n+    \"eslint\": \"^8.36.0\"\n   }\n }"
+          },
+          {
+            "command": "git bisect visualize",
+            "description": "Visualize the bisect process (opens in gitk or another visualizer)",
+            "expectedOutput": "Bisecting: 12 revisions left to test after this (roughly 4 steps)\nYou can use \"git bisect visualize\" to see the bisect tree."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Effective Bisect Strategies",
+          "content": "To make the most of git bisect:\n\n1. **Choose good starting points**: Select a definitely good commit and a definitely bad commit that are as close as possible\n2. **Use simple, focused tests**: The test should check only for the specific bug you're hunting\n3. **Consider skipping problematic commits**: Use `git bisect skip` for commits that can't be tested\n4. **Save bisect logs**: Use `git bisect log` to save your progress\n5. **Use bisect visualize**: Understand the search space with visualization tools\n\nThese strategies can significantly speed up the debugging process.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "strategy", "label": "Bisect Strategy" },
+                { "id": "narrow", "label": "Narrow Range" },
+                { "id": "simple", "label": "Simple Tests" },
+                { "id": "skip", "label": "Skip Untestable" },
+                { "id": "log", "label": "Save Progress" },
+                { "id": "visualize", "label": "Visualize Process" },
+                { "id": "efficiency", "label": "Debugging Efficiency" }
+              ],
+              "edges": [
+                { "from": "strategy", "to": "narrow" },
+                { "from": "strategy", "to": "simple" },
+                { "from": "strategy", "to": "skip" },
+                { "from": "strategy", "to": "log" },
+                { "from": "strategy", "to": "visualize" },
+                { "from": "narrow", "to": "efficiency" },
+                { "from": "simple", "to": "efficiency" },
+                { "from": "skip", "to": "efficiency" },
+                { "from": "log", "to": "efficiency" },
+                { "from": "visualize", "to": "efficiency" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

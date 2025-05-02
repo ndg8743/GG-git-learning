@@ -1,0 +1,192 @@
+{
+  "id": "git-performance",
+  "title": "Git Performance Optimization",
+  "description": "Managing large repositories efficiently",
+  "content": {
+    "overview": "As repositories grow in size and complexity, Git performance can become a concern. This module covers techniques for optimizing Git's performance, including managing large repositories, improving clone and fetch times, and configuring Git for better efficiency.",
+    "steps": [
+      {
+        "title": "Understanding Git Performance Factors",
+        "content": "Several factors can affect Git's performance, including repository size, number of objects, history depth, and client configuration. Understanding these factors is the first step in optimizing performance.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "performance", "label": "Git Performance" },
+              { "id": "repo_size", "label": "Repository Size" },
+              { "id": "objects", "label": "Number of Objects" },
+              { "id": "history", "label": "History Depth" },
+              { "id": "config", "label": "Git Configuration" },
+              { "id": "filesystem", "label": "Filesystem Performance" },
+              { "id": "network", "label": "Network Bandwidth" }
+            ],
+            "edges": [
+              { "from": "repo_size", "to": "performance", "label": "impacts" },
+              { "from": "objects", "to": "performance", "label": "impacts" },
+              { "from": "history", "to": "performance", "label": "impacts" },
+              { "from": "config", "to": "performance", "label": "impacts" },
+              { "from": "filesystem", "to": "performance", "label": "impacts" },
+              { "from": "network", "to": "performance", "label": "impacts" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Measuring Git Performance",
+        "content": "Before optimizing, it's important to measure current performance to identify bottlenecks and establish a baseline for improvement.",
+        "commands": [
+          {
+            "command": "time git clone https://github.com/large/repository.git",
+            "description": "Measure clone time",
+            "expectedOutput": "Cloning into 'repository'...\nremote: Enumerating objects: 100000, done.\nremote: Counting objects: 100% (100000/100000), done.\nremote: Compressing objects: 100% (75000/75000), done.\nremote: Total 100000 (delta 25000), reused 100000 (delta 25000)\nReceiving objects: 100% (100000/100000), 50.00 MiB | 10.00 MiB/s, done.\nResolving deltas: 100% (25000/25000), done.\n\nreal    0m30.123s\nuser    0m15.456s\nsys     0m5.789s"
+          },
+          {
+            "command": "git gc --aggressive",
+            "description": "Run garbage collection and measure time",
+            "expectedOutput": "Enumerating objects: 100000, done.\nCounting objects: 100% (100000/100000), done.\nDelta compression using up to 8 threads\nCompressing objects: 100% (75000/75000), done.\nWriting objects: 100% (100000/100000), done.\nTotal 100000 (delta 25000), reused 100000 (delta 25000)\n\nreal    1m45.678s\nuser    1m30.901s\nsys     0m15.777s"
+          },
+          {
+            "command": "git count-objects -v",
+            "description": "Count objects in repository",
+            "expectedOutput": "count: 1000\nsize: 5000\nin-pack: 99000\npacks: 1\nsize-pack: 45000\nprune-packable: 0\ngarbage: 0\nsize-garbage: 0"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Git Performance Metrics",
+          "content": "Key Git performance metrics to monitor include:\n\n1. **Clone Time**: How long it takes to clone the repository\n2. **Fetch/Pull Time**: How long it takes to get updates\n3. **Checkout Time**: How long it takes to switch branches\n4. **Commit Time**: How long it takes to create a commit\n5. **Repository Size**: Total size on disk including the .git directory\n6. **Pack File Size**: Size of compressed object storage\n\nThese metrics help identify where performance improvements will have the most impact.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "metrics", "label": "Git Performance Metrics" },
+                { "id": "clone", "label": "Clone Time" },
+                { "id": "fetch", "label": "Fetch/Pull Time" },
+                { "id": "checkout", "label": "Checkout Time" },
+                { "id": "commit", "label": "Commit Time" },
+                { "id": "size", "label": "Repository Size" },
+                { "id": "pack", "label": "Pack File Size" }
+              ],
+              "edges": [
+                { "from": "metrics", "to": "clone" },
+                { "from": "metrics", "to": "fetch" },
+                { "from": "metrics", "to": "checkout" },
+                { "from": "metrics", "to": "commit" },
+                { "from": "metrics", "to": "size" },
+                { "from": "metrics", "to": "pack" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Optimizing Repository Size",
+        "content": "Large repositories can slow down Git operations. Techniques like Git LFS, submodules, and history pruning can help manage repository size.",
+        "commands": [
+          {
+            "command": "git lfs install",
+            "description": "Set up Git Large File Storage",
+            "expectedOutput": "Git LFS initialized."
+          },
+          {
+            "command": "git lfs track \"*.psd\" \"*.zip\" \"*.iso\"",
+            "description": "Track large binary files with Git LFS",
+            "expectedOutput": "Tracking \"*.psd\"\nTracking \"*.zip\"\nTracking \"*.iso\""
+          },
+          {
+            "command": "git filter-repo --strip-blobs-bigger-than 10M",
+            "description": "Remove large files from history",
+            "expectedOutput": "Parsed 1000 commits\nNew history written in 0.5 seconds; now repacking/cleaning..."
+          },
+          {
+            "command": "git gc --aggressive --prune=now",
+            "description": "Aggressively clean up and optimize the repository",
+            "expectedOutput": "Enumerating objects: 50000, done.\nCounting objects: 100% (50000/50000), done.\nDelta compression using up to 8 threads\nCompressing objects: 100% (40000/40000), done.\nWriting objects: 100% (50000/50000), done.\nTotal 50000 (delta 10000), reused 50000 (delta 10000)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Git LFS vs. Regular Git Storage",
+          "content": "Git Large File Storage (LFS) replaces large files with text pointers in Git, while storing the file contents on a remote server:\n\n1. **Regular Git**: Stores the complete content of every version of every file\n2. **Git LFS**: Stores pointers in the repository and actual file content on a separate server\n\nThis approach significantly reduces the size of the Git repository itself, making clones and other operations faster, especially for repositories with large binary files.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "repo", "label": "Git Repository" },
+                { "id": "regular", "label": "Regular Git Storage" },
+                { "id": "lfs", "label": "Git LFS" },
+                { "id": "pointer", "label": "LFS Pointer" },
+                { "id": "server", "label": "LFS Server" },
+                { "id": "content", "label": "File Content" }
+              ],
+              "edges": [
+                { "from": "repo", "to": "regular", "label": "uses" },
+                { "from": "repo", "to": "lfs", "label": "uses" },
+                { "from": "regular", "to": "content", "label": "stores" },
+                { "from": "lfs", "to": "pointer", "label": "stores" },
+                { "from": "pointer", "to": "server", "label": "references" },
+                { "from": "server", "to": "content", "label": "stores" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Git Configuration for Performance",
+        "content": "Adjusting Git's configuration can significantly improve performance, especially for large repositories or slow networks.",
+        "commands": [
+          {
+            "command": "git config --global core.preloadindex true",
+            "description": "Preload the index for faster status checks",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global core.fscache true",
+            "description": "Enable filesystem cache for faster operations",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global gc.auto 256",
+            "description": "Run garbage collection after 256 loose objects",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global fetch.parallel 0",
+            "description": "Use all available cores for fetching",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global --list | grep performance",
+            "description": "Check performance-related settings",
+            "expectedOutput": "core.preloadindex=true\ncore.fscache=true\ngc.auto=256\nfetch.parallel=0"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Key Performance Configuration Options",
+          "content": "Git offers several configuration options that can improve performance:\n\n1. **core.preloadindex**: Loads the index in the background, improving status command speed\n2. **core.fscache**: Caches file system data, reducing disk I/O\n3. **gc.auto**: Controls when automatic garbage collection runs\n4. **fetch.parallel**: Controls parallel downloads during fetch\n5. **pack.threads**: Number of threads to use for packing\n6. **pack.windowMemory**: Memory limit for pack window\n\nThese settings can be adjusted based on your specific hardware and repository characteristics.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "config", "label": "Git Configuration" },
+                { "id": "disk", "label": "Disk I/O" },
+                { "id": "memory", "label": "Memory Usage" },
+                { "id": "cpu", "label": "CPU Usage" },
+                { "id": "network", "label": "Network Usage" },
+                { "id": "performance", "label": "Overall Performance" }
+              ],
+              "edges": [
+                { "from": "config", "to": "disk", "label": "affects" },
+                { "from": "config", "to": "memory", "label": "affects" },
+                { "from": "config", "to": "cpu", "label": "affects" },
+                { "from": "config", "to": "network", "label": "affects" },
+                { "from": "disk", "to": "performance", "label": "impacts" },
+                { "from": "memory", "to": "performance", "label": "impacts" },
+                { "from": "cpu", "to": "performance", "label": "impacts" },
+                { "from": "network", "to": "performance", "label": "impacts" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

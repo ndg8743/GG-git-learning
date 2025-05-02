@@ -1,0 +1,157 @@
+{
+  "id": "git-hooks",
+  "title": "Git Hooks and Automation",
+  "description": "Client-side and server-side hooks",
+  "content": {
+    "overview": "Git hooks are scripts that Git executes before or after events such as commit, push, and receive. They allow you to customize Git's behavior and automate tasks in your development workflow, from enforcing coding standards to triggering deployments.",
+    "steps": [
+      {
+        "title": "Understanding Git Hooks",
+        "content": "Git hooks are scripts that Git executes when certain events occur in your repository. They can be used to enforce standards, automate tasks, and integrate with other tools in your development workflow.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "hooks", "label": "Git Hooks" },
+              { "id": "client", "label": "Client-side Hooks" },
+              { "id": "server", "label": "Server-side Hooks" },
+              { "id": "pre", "label": "Pre-event Hooks" },
+              { "id": "post", "label": "Post-event Hooks" },
+              { "id": "workflow", "label": "Git Workflow" }
+            ],
+            "edges": [
+              { "from": "hooks", "to": "client", "label": "includes" },
+              { "from": "hooks", "to": "server", "label": "includes" },
+              { "from": "client", "to": "pre", "label": "contains" },
+              { "from": "client", "to": "post", "label": "contains" },
+              { "from": "server", "to": "pre", "label": "contains" },
+              { "from": "server", "to": "post", "label": "contains" },
+              { "from": "hooks", "to": "workflow", "label": "enhances" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Client-side Hooks",
+        "content": "Client-side hooks run on your local machine and can prevent commits or pushes that don't meet certain criteria. They're stored in the .git/hooks directory of your repository.",
+        "commands": [
+          {
+            "command": "ls -la .git/hooks",
+            "description": "List available hook templates",
+            "expectedOutput": "total 64\ndrwxr-xr-x  14 user  group   448 Jan  1 12:00 .\ndrwxr-xr-x  14 user  group   448 Jan  1 12:00 ..\n-rwxr-xr-x   1 user  group  2262 Jan  1 12:00 applypatch-msg.sample\n-rwxr-xr-x   1 user  group   896 Jan  1 12:00 commit-msg.sample\n-rwxr-xr-x   1 user  group  3327 Jan  1 12:00 post-update.sample\n-rwxr-xr-x   1 user  group   416 Jan  1 12:00 pre-applypatch.sample\n-rwxr-xr-x   1 user  group  1642 Jan  1 12:00 pre-commit.sample\n-rwxr-xr-x   1 user  group  1348 Jan  1 12:00 pre-push.sample\n-rwxr-xr-x   1 user  group  4898 Jan  1 12:00 pre-rebase.sample\n-rwxr-xr-x   1 user  group   544 Jan  1 12:00 prepare-commit-msg.sample\n-rwxr-xr-x   1 user  group  3610 Jan  1 12:00 update.sample"
+          },
+          {
+            "command": "cat .git/hooks/pre-commit.sample",
+            "description": "View the sample pre-commit hook",
+            "expectedOutput": "#!/bin/sh\n#\n# An example hook script to verify what is about to be committed.\n# Called by \"git commit\" with no arguments.  The hook should\n# exit with non-zero status after issuing an appropriate message if\n# it wants to stop the commit.\n#\n# To enable this hook, rename this file to \"pre-commit\".\n\n..."
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": ".git/hooks/pre-commit",
+            "description": "Create a pre-commit hook to run linters before committing",
+            "content": "#!/bin/sh\n\n# Run linter on staged files\necho \"Running linter...\"\nlint_output=$(npm run lint -- --staged)\n\n# If linter found errors, prevent commit\nif [ $? -ne 0 ]; then\n  echo \"Linting failed. Please fix the errors before committing.\"\n  echo \"$lint_output\"\n  exit 1\nfi\n\necho \"Linting passed. Proceeding with commit.\"\nexit 0"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Common Client-side Hooks",
+          "content": "The most commonly used client-side hooks include:\n\n1. **pre-commit**: Runs before a commit is created, often used for linting and testing\n2. **prepare-commit-msg**: Runs before the commit message editor is launched\n3. **commit-msg**: Validates the commit message format\n4. **post-commit**: Runs after a commit is created, often used for notifications\n5. **pre-push**: Runs before pushing commits to a remote repository\n\nThese hooks can prevent mistakes from entering your repository and enforce team standards.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "workflow", "label": "Git Workflow" },
+                { "id": "precommit", "label": "pre-commit" },
+                { "id": "preparecommit", "label": "prepare-commit-msg" },
+                { "id": "commitmsg", "label": "commit-msg" },
+                { "id": "postcommit", "label": "post-commit" },
+                { "id": "prepush", "label": "pre-push" }
+              ],
+              "edges": [
+                { "from": "workflow", "to": "precommit", "label": "first" },
+                { "from": "precommit", "to": "preparecommit", "label": "then" },
+                { "from": "preparecommit", "to": "commitmsg", "label": "then" },
+                { "from": "commitmsg", "to": "postcommit", "label": "then" },
+                { "from": "postcommit", "to": "prepush", "label": "later" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Creating a Custom Hook",
+        "content": "Creating a custom Git hook involves writing a script and making it executable. The script can be written in any language, but it must be executable by your system.",
+        "commands": [
+          {
+            "command": "touch .git/hooks/pre-commit",
+            "description": "Create a pre-commit hook file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "chmod +x .git/hooks/pre-commit",
+            "description": "Make the hook executable",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '#!/bin/sh\necho \"Running pre-commit hook...\"\nexit 0' > .git/hooks/pre-commit",
+            "description": "Add a simple script to the hook",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Test commit with hook\"",
+            "description": "Test the hook with a commit",
+            "expectedOutput": "Running pre-commit hook...\n[main 1a2b3c4] Test commit with hook\n 1 file changed, 1 insertion(+)"
+          }
+        ]
+      },
+      {
+        "title": "Server-side Hooks",
+        "content": "Server-side hooks run on the remote repository when it receives pushed commits. They can enforce project policies and trigger integrations with other systems.",
+        "commands": [
+          {
+            "command": "ssh user@gitserver",
+            "description": "Connect to your Git server",
+            "expectedOutput": "Last login: Mon Jan 1 12:00:00 2023 from client\nuser@gitserver:~$"
+          },
+          {
+            "command": "cd /path/to/repo.git",
+            "description": "Navigate to the bare repository",
+            "expectedOutput": "user@gitserver:/path/to/repo.git$"
+          },
+          {
+            "command": "cat hooks/update.sample",
+            "description": "View the sample update hook",
+            "expectedOutput": "#!/bin/sh\n#\n# An example hook script to block unannotated tags from being pushed.\n# Called by \"git receive-pack\" with arguments: refname sha1-old sha1-new\n#\n# To enable this hook, rename this file to \"update\".\n\n..."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Common Server-side Hooks",
+          "content": "The most commonly used server-side hooks include:\n\n1. **pre-receive**: Runs when the server receives a push, before any refs are updated\n2. **update**: Runs once for each ref being updated\n3. **post-receive**: Runs after all refs have been updated\n\nServer-side hooks are powerful for enforcing organization-wide policies and triggering CI/CD pipelines.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "client", "label": "Client" },
+                { "id": "server", "label": "Git Server" },
+                { "id": "prereceive", "label": "pre-receive" },
+                { "id": "update", "label": "update" },
+                { "id": "postreceive", "label": "post-receive" },
+                { "id": "ci", "label": "CI/CD System" },
+                { "id": "notification", "label": "Notification System" }
+              ],
+              "edges": [
+                { "from": "client", "to": "server", "label": "git push" },
+                { "from": "server", "to": "prereceive", "label": "triggers" },
+                { "from": "prereceive", "to": "update", "label": "if passes" },
+                { "from": "update", "to": "postreceive", "label": "if passes" },
+                { "from": "postreceive", "to": "ci", "label": "triggers" },
+                { "from": "postreceive", "to": "notification", "label": "sends" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

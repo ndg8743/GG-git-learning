@@ -1,0 +1,255 @@
+{
+  "id": "git-custom-commands",
+  "title": "Custom Git Commands and Extensions",
+  "description": "Creating aliases and Git extensions",
+  "content": {
+    "overview": "Git's functionality can be extended through custom commands, aliases, and extensions. This module covers how to create your own Git commands to automate common workflows, customize Git's behavior, and integrate with external tools.",
+    "steps": [
+      {
+        "title": "Understanding Git's Extensibility",
+        "content": "Git is designed to be extensible, allowing users to create custom commands and workflows. There are several ways to extend Git's functionality, from simple aliases to full-fledged extensions.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "git", "label": "Git" },
+              { "id": "aliases", "label": "Git Aliases" },
+              { "id": "scripts", "label": "Shell Scripts" },
+              { "id": "extensions", "label": "Git Extensions" },
+              { "id": "hooks", "label": "Git Hooks" },
+              { "id": "config", "label": "Git Config" }
+            ],
+            "edges": [
+              { "from": "git", "to": "aliases", "label": "simple" },
+              { "from": "git", "to": "scripts", "label": "intermediate" },
+              { "from": "git", "to": "extensions", "label": "advanced" },
+              { "from": "git", "to": "hooks", "label": "event-based" },
+              { "from": "git", "to": "config", "label": "customization" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Creating Git Aliases",
+        "content": "Git aliases are shortcuts for longer Git commands. They can save time and make complex commands easier to remember.",
+        "commands": [
+          {
+            "command": "git config --global alias.co checkout",
+            "description": "Create an alias for checkout",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.br branch",
+            "description": "Create an alias for branch",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.ci commit",
+            "description": "Create an alias for commit",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.st status",
+            "description": "Create an alias for status",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.unstage 'reset HEAD --'",
+            "description": "Create an alias for unstaging files",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.last 'log -1 HEAD'",
+            "description": "Create an alias to show the last commit",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global --list | grep alias",
+            "description": "List all configured aliases",
+            "expectedOutput": "alias.co=checkout\nalias.br=branch\nalias.ci=commit\nalias.st=status\nalias.unstage=reset HEAD --\nalias.last=log -1 HEAD"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Alias Storage and Scope",
+          "content": "Git aliases are stored in Git's configuration files:\n\n1. **System-wide**: `/etc/gitconfig` - affects all users on the system\n2. **Global**: `~/.gitconfig` or `~/.config/git/config` - affects all your repositories\n3. **Local**: `.git/config` in a repository - affects only that repository\n\nAliases can be simple command substitutions or complex shell commands. For shell commands, prefix with an exclamation point (!).",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "aliases", "label": "Git Aliases" },
+                { "id": "system", "label": "System Config" },
+                { "id": "global", "label": "Global Config" },
+                { "id": "local", "label": "Local Config" },
+                { "id": "simple", "label": "Simple Aliases" },
+                { "id": "complex", "label": "Complex Aliases" }
+              ],
+              "edges": [
+                { "from": "aliases", "to": "system", "label": "stored in" },
+                { "from": "aliases", "to": "global", "label": "stored in" },
+                { "from": "aliases", "to": "local", "label": "stored in" },
+                { "from": "aliases", "to": "simple", "label": "can be" },
+                { "from": "aliases", "to": "complex", "label": "can be" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Advanced Git Aliases",
+        "content": "Advanced Git aliases can include shell commands, parameters, and even call other Git commands. These powerful aliases can automate complex workflows.",
+        "commands": [
+          {
+            "command": "git config --global alias.visual '!gitk'",
+            "description": "Create an alias that runs an external command",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.changelog \"log --pretty=format:'%h - %an, %ar : %s'\"",
+            "description": "Create an alias with a custom log format",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.graph \"log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\"",
+            "description": "Create a colorful graph alias",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.amend \"commit --amend\"",
+            "description": "Create an alias for amending commits",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global alias.undo \"reset --soft HEAD~1\"",
+            "description": "Create an alias to undo the last commit",
+            "expectedOutput": ""
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": "useful-git-aliases.md",
+            "description": "Create a reference file with useful Git aliases",
+            "content": "# Useful Git Aliases\n\n## Basic Aliases\n\n```bash\ngit config --global alias.co checkout\ngit config --global alias.br branch\ngit config --global alias.ci commit\ngit config --global alias.st status\n```\n\n## Workflow Aliases\n\n```bash\n# Unstage files\ngit config --global alias.unstage 'reset HEAD --'\n\n# Show the last commit\ngit config --global alias.last 'log -1 HEAD'\n\n# Amend the last commit\ngit config --global alias.amend 'commit --amend'\n\n# Undo the last commit (keeping changes)\ngit config --global alias.undo 'reset --soft HEAD~1'\n\n# Show a pretty commit log\ngit config --global alias.lg \"log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\"\n```\n\n## Advanced Aliases\n\n```bash\n# Show all branches, including remote branches\ngit config --global alias.branches 'branch -a'\n\n# Show all tags\ngit config --global alias.tags 'tag -l'\n\n# Show all remotes\ngit config --global alias.remotes 'remote -v'\n\n# Show a summary of incoming/outgoing commits\ngit config --global alias.incoming '!git remote update -p; git log ..@{u}'\ngit config --global alias.outgoing 'log @{u}..'\n\n# Clean up local branches that have been merged\ngit config --global alias.cleanup \"!git branch --merged | grep -v '\\*\\|master\\|main\\|develop' | xargs -n 1 git branch -d\"\n\n# Create a new branch and switch to it\ngit config --global alias.nb '!f() { git checkout -b \"$1\"; }; f'\n\n# Save work in progress\ngit config --global alias.wip '!git add -A && git commit -m \"WIP\"'\ngit config --global alias.unwip '!git log -n 1 | grep -q -c \"WIP\" && git reset HEAD~1'\n```\n\n## Using Aliases\n\nOnce configured, you can use aliases like this:\n\n```bash\n# Instead of git checkout\ngit co main\n\n# Instead of git status\ngit st\n\n# Show a pretty log graph\ngit lg\n\n# Create and switch to a new branch\ngit nb feature/new-feature\n\n# Save work in progress\ngit wip\n\n# Resume work after WIP\ngit unwip\n```"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Shell Command Aliases",
+          "content": "For more complex aliases that use shell commands:\n\n1. **Use the exclamation point (!)** to indicate a shell command\n2. **Access parameters** with $1, $2, etc. (or use a shell function)\n3. **Chain commands** with && or |\n4. **Use quotes** to handle spaces and special characters\n\nShell command aliases can be powerful but may not be portable across different operating systems.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "shell", "label": "Shell Command Alias" },
+                { "id": "exclamation", "label": "! Prefix" },
+                { "id": "function", "label": "Shell Function" },
+                { "id": "params", "label": "Parameters" },
+                { "id": "chaining", "label": "Command Chaining" },
+                { "id": "portability", "label": "Portability Concerns" }
+              ],
+              "edges": [
+                { "from": "shell", "to": "exclamation", "label": "starts with" },
+                { "from": "shell", "to": "function", "label": "can use" },
+                { "from": "shell", "to": "params", "label": "can accept" },
+                { "from": "shell", "to": "chaining", "label": "supports" },
+                { "from": "shell", "to": "portability", "label": "has" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Creating Git Extensions",
+        "content": "Git extensions are custom commands that extend Git's functionality. They can be written in any language and are invoked as 'git-command'.",
+        "commands": [
+          {
+            "command": "cat > ~/bin/git-hello << 'EOF'\n#!/bin/bash\necho \"Hello, Git extension world!\"\nEOF",
+            "description": "Create a simple Git extension",
+            "expectedOutput": ""
+          },
+          {
+            "command": "chmod +x ~/bin/git-hello",
+            "description": "Make the extension executable",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git hello",
+            "description": "Run the custom Git command",
+            "expectedOutput": "Hello, Git extension world!"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": "git-summary",
+            "description": "Create a more useful Git extension",
+            "content": "#!/bin/bash\n\n# git-summary - Show a summary of the current repository\n\n# Ensure we're in a git repository\nif ! git rev-parse --git-dir > /dev/null 2>&1; then\n  echo \"Error: Not a git repository\"\n  exit 1\nfi\n\n# Get repository name\nrepo_name=$(basename \"$(git rev-parse --show-toplevel)\")\n\n# Get current branch\ncurrent_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo \"detached HEAD\")\n\n# Get commit count\ncommit_count=$(git rev-list --count HEAD)\n\n# Get contributor count\ncontributor_count=$(git shortlog -s | wc -l)\n\n# Get file count\nfile_count=$(git ls-files | wc -l)\n\n# Get repository size\nrepo_size=$(du -sh . | awk '{print $1}')\n\n# Get last commit date\nlast_commit_date=$(git log -1 --format=%cd --date=relative)\n\n# Print summary\necho \"Repository Summary: $repo_name\"\necho \"----------------------------\"\necho \"Current branch: $current_branch\"\necho \"Commit count: $commit_count\"\necho \"Contributors: $contributor_count\"\necho \"Files: $file_count\"\necho \"Repository size: $repo_size\"\necho \"Last commit: $last_commit_date\"\necho \"\"\n\n# Show branch status\necho \"Branch Status:\"\ngit branch -v\necho \"\"\n\n# Show recent commits\necho \"Recent Commits:\"\ngit log --oneline -n 5\n"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Extensions Work",
+          "content": "Git extensions work through a simple naming convention:\n\n1. **Create an executable file** named `git-command`\n2. **Place it in your PATH** (e.g., ~/bin/ or /usr/local/bin/)\n3. **Make it executable** with `chmod +x git-command`\n\nWhen you run `git command`, Git looks for an executable named `git-command` in your PATH. This allows you to extend Git with commands written in any language.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "extension", "label": "Git Extension" },
+                { "id": "naming", "label": "git-command Naming" },
+                { "id": "path", "label": "PATH Location" },
+                { "id": "executable", "label": "Executable Permission" },
+                { "id": "invocation", "label": "git command Invocation" },
+                { "id": "language", "label": "Any Programming Language" }
+              ],
+              "edges": [
+                { "from": "extension", "to": "naming", "label": "follows" },
+                { "from": "extension", "to": "path", "label": "placed in" },
+                { "from": "extension", "to": "executable", "label": "requires" },
+                { "from": "extension", "to": "invocation", "label": "enables" },
+                { "from": "extension", "to": "language", "label": "written in" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Sharing and Managing Custom Commands",
+        "content": "Custom Git commands and configurations can be shared across teams and projects. This ensures consistent workflows and tooling.",
+        "commands": [
+          {
+            "command": "git config --local include.path ../.gitconfig",
+            "description": "Include a shared configuration file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cat > .gitconfig.shared << 'EOF'\n[alias]\n  st = status\n  co = checkout\n  br = branch\n  ci = commit\n  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\n[core]\n  editor = code --wait\n  autocrlf = input\n[pull]\n  rebase = true\nEOF",
+            "description": "Create a shared Git configuration file",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Team Standardization Approaches",
+          "content": "There are several approaches to standardizing Git commands across a team:\n\n1. **Shared configuration files**: Use `include.path` to include team-wide configurations\n2. **Project-specific scripts**: Include scripts in the repository that everyone can use\n3. **Custom packages**: Create installable packages with your team's Git extensions\n4. **Documentation**: Maintain documentation of recommended aliases and workflows\n\nStandardizing Git commands helps ensure consistent workflows and reduces friction when collaborating.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "standardization", "label": "Team Standardization" },
+                { "id": "config", "label": "Shared Config Files" },
+                { "id": "scripts", "label": "Project Scripts" },
+                { "id": "packages", "label": "Custom Packages" },
+                { "id": "docs", "label": "Documentation" },
+                { "id": "consistency", "label": "Workflow Consistency" }
+              ],
+              "edges": [
+                { "from": "standardization", "to": "config", "label": "through" },
+                { "from": "standardization", "to": "scripts", "label": "through" },
+                { "from": "standardization", "to": "packages", "label": "through" },
+                { "from": "standardization", "to": "docs", "label": "through" },
+                { "from": "standardization", "to": "consistency", "label": "leads to" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

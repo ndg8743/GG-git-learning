@@ -1,0 +1,183 @@
+{
+  "id": "git-advanced-branching",
+  "title": "Advanced Branching Strategies",
+  "description": "Git Flow, GitHub Flow, and trunk-based development",
+  "content": {
+    "overview": "Advanced branching strategies help teams collaborate effectively on large projects. This module covers popular branching models like Git Flow, GitHub Flow, and trunk-based development, along with best practices for managing complex workflows.",
+    "steps": [
+      {
+        "title": "Understanding Branching Strategies",
+        "content": "Branching strategies are organized approaches to using Git branches in development workflows. They help teams coordinate work, manage releases, and maintain code quality. Different strategies suit different project needs and team sizes.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "strategy", "label": "Branching Strategy" },
+              { "id": "gitflow", "label": "Git Flow" },
+              { "id": "githubflow", "label": "GitHub Flow" },
+              { "id": "trunk", "label": "Trunk-Based" },
+              { "id": "team", "label": "Team Size & Needs" },
+              { "id": "release", "label": "Release Cadence" }
+            ],
+            "edges": [
+              { "from": "strategy", "to": "gitflow" },
+              { "from": "strategy", "to": "githubflow" },
+              { "from": "strategy", "to": "trunk" },
+              { "from": "team", "to": "strategy", "label": "influences" },
+              { "from": "release", "to": "strategy", "label": "influences" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Git Flow",
+        "content": "Git Flow is a branching model that uses multiple long-lived branches. It's designed for projects with scheduled releases and works well for larger teams with formal processes.",
+        "commands": [
+          {
+            "command": "git flow init",
+            "description": "Initialize Git Flow in a repository",
+            "expectedOutput": "Which branch should be used for bringing forth production releases?\n   - master\nBranch name for production releases: [master] \nBranch name for \"next release\" development: [develop] \n\nHow to name your supporting branch prefixes?\nFeature branches? [feature/] \nRelease branches? [release/] \nHotfix branches? [hotfix/] \nSupport branches? [support/] \nVersion tag prefix? [] \n"
+          },
+          {
+            "command": "git flow feature start new-feature",
+            "description": "Start a new feature branch",
+            "expectedOutput": "Switched to a new branch 'feature/new-feature'\n\nSummary of actions:\n- A new branch 'feature/new-feature' was created, based on 'develop'\n- You are now on branch 'feature/new-feature'\n\nNow, start committing on your feature. When done, use:\n\n     git flow feature finish new-feature"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Git Flow Branch Structure",
+          "content": "Git Flow defines a strict branching model with specific roles for different branches:\n\n- **master**: Contains production code. Only merged from release or hotfix branches.\n- **develop**: Main development branch where features are integrated.\n- **feature/**: Short-lived branches for new features, branched from and merged back to develop.\n- **release/**: Branches for preparing releases, allowing for minor fixes before merging to master.\n- **hotfix/**: Emergency fixes for production issues, branched from master and merged to both master and develop.\n\nThis structure helps manage complex projects but adds overhead for simpler applications.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "master", "label": "master" },
+                { "id": "develop", "label": "develop" },
+                { "id": "feature", "label": "feature/*" },
+                { "id": "release", "label": "release/*" },
+                { "id": "hotfix", "label": "hotfix/*" }
+              ],
+              "edges": [
+                { "from": "develop", "to": "feature", "label": "branch from" },
+                { "from": "feature", "to": "develop", "label": "merge to" },
+                { "from": "develop", "to": "release", "label": "branch from" },
+                { "from": "release", "to": "master", "label": "merge to" },
+                { "from": "release", "to": "develop", "label": "merge to" },
+                { "from": "master", "to": "hotfix", "label": "branch from" },
+                { "from": "hotfix", "to": "master", "label": "merge to" },
+                { "from": "hotfix", "to": "develop", "label": "merge to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "GitHub Flow",
+        "content": "GitHub Flow is a simpler alternative to Git Flow, centered around feature branches and pull requests. It's designed for continuous delivery and works well with GitHub's collaboration features.",
+        "commands": [
+          {
+            "command": "git checkout -b feature-branch",
+            "description": "Create and switch to a new feature branch",
+            "expectedOutput": "Switched to a new branch 'feature-branch'"
+          },
+          {
+            "command": "git add .",
+            "description": "Stage changes",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Add new feature\"",
+            "description": "Commit changes",
+            "expectedOutput": "[feature-branch 1a2b3c4] Add new feature\n 1 file changed, 10 insertions(+)"
+          },
+          {
+            "command": "git push -u origin feature-branch",
+            "description": "Push branch to remote repository",
+            "expectedOutput": "Total 0 (delta 0), reused 0 (delta 0)\nremote: \nremote: Create a pull request for 'feature-branch' on GitHub by visiting:\nremote:      https://github.com/user/repo/pull/new/feature-branch\nremote: \nTo github.com:user/repo.git\n * [new branch]      feature-branch -> feature-branch\nBranch 'feature-branch' set up to track remote branch 'feature-branch' from 'origin'."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "GitHub Flow Process",
+          "content": "GitHub Flow follows a straightforward process:\n\n1. **Branch**: Create a branch from main for your feature or fix\n2. **Commit**: Make changes and commit them to your branch\n3. **Pull Request**: Open a pull request to initiate discussion\n4. **Review**: Team members review the code, suggest changes, and approve\n5. **Deploy**: Optionally deploy the branch to test in production\n6. **Merge**: Merge the pull request into main\n\nThis approach is simpler than Git Flow and works well for continuous deployment environments.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "main", "label": "main" },
+                { "id": "feature1", "label": "feature-1" },
+                { "id": "feature2", "label": "feature-2" },
+                { "id": "feature3", "label": "feature-3" },
+                { "id": "pr", "label": "Pull Request" }
+              ],
+              "edges": [
+                { "from": "main", "to": "feature1", "label": "branch" },
+                { "from": "main", "to": "feature2", "label": "branch" },
+                { "from": "main", "to": "feature3", "label": "branch" },
+                { "from": "feature1", "to": "pr", "label": "create" },
+                { "from": "pr", "to": "main", "label": "merge" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Trunk-Based Development",
+        "content": "Trunk-Based Development is a branching strategy where developers collaborate on a single branch called 'trunk' (usually main or master). It emphasizes small, frequent commits and is popular in CI/CD environments.",
+        "commands": [
+          {
+            "command": "git checkout main",
+            "description": "Switch to the main branch",
+            "expectedOutput": "Switched to branch 'main'\nYour branch is up to date with 'origin/main'."
+          },
+          {
+            "command": "git pull",
+            "description": "Get latest changes",
+            "expectedOutput": "Already up to date."
+          },
+          {
+            "command": "git checkout -b small-feature",
+            "description": "Create a short-lived feature branch",
+            "expectedOutput": "Switched to a new branch 'small-feature'"
+          },
+          {
+            "command": "git commit -am \"Add small feature\"",
+            "description": "Commit changes",
+            "expectedOutput": "[small-feature 1a2b3c4] Add small feature\n 1 file changed, 5 insertions(+)"
+          },
+          {
+            "command": "git checkout main",
+            "description": "Switch back to main",
+            "expectedOutput": "Switched to branch 'main'"
+          },
+          {
+            "command": "git merge small-feature",
+            "description": "Merge feature branch quickly",
+            "expectedOutput": "Updating 1a2b3c4..5e6f7g8\nFast-forward\n 1 file changed, 5 insertions(+)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Trunk-Based Development Principles",
+          "content": "Trunk-Based Development follows these key principles:\n\n1. **Small Changes**: Developers make small, incremental changes\n2. **Frequent Integration**: Changes are integrated to the trunk at least daily\n3. **Feature Flags**: Incomplete features are hidden behind feature flags\n4. **Automated Testing**: Comprehensive test automation ensures trunk stability\n5. **Short-Lived Branches**: If branches are used, they last no more than a day or two\n\nThis approach reduces merge conflicts and supports continuous integration practices.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "trunk", "label": "trunk (main)" },
+                { "id": "dev1", "label": "Developer 1" },
+                { "id": "dev2", "label": "Developer 2" },
+                { "id": "dev3", "label": "Developer 3" },
+                { "id": "ci", "label": "CI/CD Pipeline" }
+              ],
+              "edges": [
+                { "from": "dev1", "to": "trunk", "label": "commit" },
+                { "from": "dev2", "to": "trunk", "label": "commit" },
+                { "from": "dev3", "to": "trunk", "label": "commit" },
+                { "from": "trunk", "to": "ci", "label": "triggers" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

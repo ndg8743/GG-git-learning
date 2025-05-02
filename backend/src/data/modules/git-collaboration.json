@@ -1,0 +1,159 @@
+{
+  "id": "git-collaboration",
+  "title": "Collaboration Workflows",
+  "description": "Pull requests, code reviews, and best practices",
+  "content": {
+    "overview": "Effective collaboration is essential for team-based development. This module covers Git workflows for team collaboration, including pull requests, code reviews, and best practices for maintaining code quality in shared repositories.",
+    "steps": [
+      {
+        "title": "Collaborative Git Workflows",
+        "content": "Collaborative workflows define how team members work together using Git. They establish conventions for branching, merging, and integrating changes to maintain code quality and project stability.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "central", "label": "Central Repository" },
+              { "id": "dev1", "label": "Developer 1 Fork" },
+              { "id": "dev2", "label": "Developer 2 Fork" },
+              { "id": "dev3", "label": "Developer 3 Fork" },
+              { "id": "pr", "label": "Pull Request" },
+              { "id": "review", "label": "Code Review" }
+            ],
+            "edges": [
+              { "from": "central", "to": "dev1", "label": "fork" },
+              { "from": "central", "to": "dev2", "label": "fork" },
+              { "from": "central", "to": "dev3", "label": "fork" },
+              { "from": "dev1", "to": "pr", "label": "submit" },
+              { "from": "pr", "to": "review", "label": "triggers" },
+              { "from": "review", "to": "central", "label": "merge" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Working with Remotes",
+        "content": "Remote repositories are versions of your project hosted on the internet or network. Collaborating with others involves pushing to and pulling from these remote repositories.",
+        "commands": [
+          {
+            "command": "git remote -v",
+            "description": "List remote repositories",
+            "expectedOutput": "origin  https://github.com/username/repo.git (fetch)\norigin  https://github.com/username/repo.git (push)"
+          },
+          {
+            "command": "git remote add upstream https://github.com/original/repo.git",
+            "description": "Add the original repository as a remote",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git fetch upstream",
+            "description": "Fetch changes from the upstream repository",
+            "expectedOutput": "From https://github.com/original/repo\n * [new branch]      main       -> upstream/main"
+          },
+          {
+            "command": "git merge upstream/main",
+            "description": "Merge changes from upstream into your local branch",
+            "expectedOutput": "Updating a1b2c3d..e4f5g6h\nFast-forward\n file.txt | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)"
+          }
+        ]
+      },
+      {
+        "title": "Pull Requests",
+        "content": "Pull requests (PRs) are a way to propose changes to a repository. They're central to most collaborative Git workflows, especially on platforms like GitHub, GitLab, and Bitbucket.",
+        "commands": [
+          {
+            "command": "git checkout -b feature-branch",
+            "description": "Create a new branch for your feature",
+            "expectedOutput": "Switched to a new branch 'feature-branch'"
+          },
+          {
+            "command": "git add .",
+            "description": "Stage your changes",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Add new feature\"",
+            "description": "Commit your changes",
+            "expectedOutput": "[feature-branch 1a2b3c4] Add new feature\n 1 file changed, 10 insertions(+)"
+          },
+          {
+            "command": "git push -u origin feature-branch",
+            "description": "Push your branch to the remote repository",
+            "expectedOutput": "Total 0 (delta 0), reused 0 (delta 0)\nremote: \nremote: Create a pull request for 'feature-branch' on GitHub by visiting:\nremote:      https://github.com/username/repo/pull/new/feature-branch\nremote: \nTo github.com:username/repo.git\n * [new branch]      feature-branch -> feature-branch\nBranch 'feature-branch' set up to track remote branch 'feature-branch' from 'origin'."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Pull Request",
+          "content": "A pull request consists of several key components:\n\n1. **Source and Target Branches**: The branch containing your changes and the branch you want to merge into\n2. **Commits**: All commits included in your branch\n3. **Diff**: The changes between your branch and the target branch\n4. **Description**: Explanation of what changes you're making and why\n5. **Reviewers**: Team members assigned to review the code\n6. **Checks**: Automated tests and integrations that run on your code\n\nPull requests facilitate discussion and review before changes are merged into the main codebase.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "pr", "label": "Pull Request" },
+                { "id": "source", "label": "Source Branch" },
+                { "id": "target", "label": "Target Branch" },
+                { "id": "commits", "label": "Commits" },
+                { "id": "diff", "label": "Diff" },
+                { "id": "desc", "label": "Description" },
+                { "id": "reviewers", "label": "Reviewers" },
+                { "id": "checks", "label": "Checks" }
+              ],
+              "edges": [
+                { "from": "pr", "to": "source" },
+                { "from": "pr", "to": "target" },
+                { "from": "pr", "to": "commits" },
+                { "from": "pr", "to": "diff" },
+                { "from": "pr", "to": "desc" },
+                { "from": "pr", "to": "reviewers" },
+                { "from": "pr", "to": "checks" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Code Reviews",
+        "content": "Code reviews are a systematic examination of code changes to find and fix issues before they're merged into the main codebase. They improve code quality and share knowledge among team members.",
+        "commands": [
+          {
+            "command": "git diff main..feature-branch",
+            "description": "View the differences between branches",
+            "expectedOutput": "diff --git a/file.txt b/file.txt\nindex 1234567..abcdefg 100644\n--- a/file.txt\n+++ b/file.txt\n@@ -1,5 +1,7 @@\n Line 1\n Line 2\n+New line 3\n+New line 4\n Line 5"
+          },
+          {
+            "command": "git log main..feature-branch",
+            "description": "View commits in feature-branch that aren't in main",
+            "expectedOutput": "commit abcdef1234567890\nAuthor: Developer Name <dev@example.com>\nDate:   Mon Jan 1 12:00:00 2023 -0500\n\n    Add new feature\n\ncommit 1234567890abcdef\nAuthor: Developer Name <dev@example.com>\nDate:   Sun Dec 31 12:00:00 2022 -0500\n\n    Fix bug in existing feature"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Effective Code Review Practices",
+          "content": "Effective code reviews follow these best practices:\n\n1. **Be Respectful**: Focus on the code, not the person\n2. **Be Specific**: Point to exact lines and provide clear feedback\n3. **Be Constructive**: Suggest improvements, not just criticisms\n4. **Be Timely**: Review code promptly to avoid blocking progress\n5. **Be Thorough**: Check for logic errors, security issues, and maintainability\n6. **Automate What You Can**: Use linters and automated tests\n\nCode reviews are a learning opportunity for both the author and the reviewer.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "author", "label": "Code Author" },
+                { "id": "reviewer", "label": "Code Reviewer" },
+                { "id": "pr", "label": "Pull Request" },
+                { "id": "feedback", "label": "Feedback" },
+                { "id": "revisions", "label": "Revisions" },
+                { "id": "approval", "label": "Approval" },
+                { "id": "merge", "label": "Merge" }
+              ],
+              "edges": [
+                { "from": "author", "to": "pr", "label": "submits" },
+                { "from": "pr", "to": "reviewer", "label": "assigned to" },
+                { "from": "reviewer", "to": "feedback", "label": "provides" },
+                { "from": "feedback", "to": "author", "label": "received by" },
+                { "from": "author", "to": "revisions", "label": "makes" },
+                { "from": "revisions", "to": "pr", "label": "added to" },
+                { "from": "reviewer", "to": "approval", "label": "gives" },
+                { "from": "approval", "to": "merge", "label": "enables" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "git-submodules",
+  "title": "Git Submodules and Subtrees",
+  "description": "Managing project dependencies",
+  "content": {
+    "overview": "Git submodules and subtrees allow you to include other Git repositories within your main repository. This is useful for managing dependencies and incorporating external code into your project.",
+    "steps": [
+      {
+        "title": "Understanding Git Submodules",
+        "content": "Git submodules allow you to keep a Git repository as a subdirectory of another Git repository. This lets you include external code in your project while keeping it separate and maintaining its own history.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "main", "label": "Main Repository" },
+              { "id": "sub1", "label": "Submodule 1" },
+              { "id": "sub2", "label": "Submodule 2" },
+              { "id": "ext1", "label": "External Repo 1" },
+              { "id": "ext2", "label": "External Repo 2" }
+            ],
+            "edges": [
+              { "from": "main", "to": "sub1", "label": "references" },
+              { "from": "main", "to": "sub2", "label": "references" },
+              { "from": "sub1", "to": "ext1", "label": "points to" },
+              { "from": "sub2", "to": "ext2", "label": "points to" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Adding a Submodule",
+        "content": "To add a submodule to your repository, use the `git submodule add` command followed by the repository URL and the path where you want the submodule to be placed.",
+        "commands": [
+          {
+            "command": "git submodule add https://github.com/example/repo.git lib/repo",
+            "description": "Add a submodule to your repository",
+            "expectedOutput": "Cloning into 'lib/repo'...\nremote: Enumerating objects...\nremote: Counting objects...\nReceiving objects..."
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your repository",
+            "expectedOutput": "Changes to be committed:\n  new file:   .gitmodules\n  new file:   lib/repo"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": ".gitmodules",
+            "description": "Git creates a .gitmodules file to track submodule configurations"
+          },
+          {
+            "type": "create",
+            "path": "lib/repo",
+            "description": "The submodule is cloned into this directory"
+          }
+        ]
+      },
+      {
+        "title": "Cloning a Repository with Submodules",
+        "content": "When you clone a repository that contains submodules, you need to initialize and update the submodules to get their contents.",
+        "commands": [
+          {
+            "command": "git clone https://github.com/example/main-repo.git",
+            "description": "Clone the main repository",
+            "expectedOutput": "Cloning into 'main-repo'...\nremote: Enumerating objects...\nremote: Counting objects...\nReceiving objects..."
+          },
+          {
+            "command": "cd main-repo",
+            "description": "Navigate to the cloned repository",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git submodule init",
+            "description": "Initialize the submodules",
+            "expectedOutput": "Submodule 'lib/repo' registered for path 'lib/repo'"
+          },
+          {
+            "command": "git submodule update",
+            "description": "Update the submodules to get their contents",
+            "expectedOutput": "Cloning into 'lib/repo'...\nSubmodule path 'lib/repo': checked out '1a2b3c4d...'"
+          }
+        ]
+      },
+      {
+        "title": "Working with Git Subtrees",
+        "content": "Git subtrees are an alternative to submodules. They allow you to include the contents of another repository into your main repository, but without the complexity of submodules.",
+        "commands": [
+          {
+            "command": "git subtree add --prefix=lib/repo https://github.com/example/repo.git main",
+            "description": "Add a subtree to your repository",
+            "expectedOutput": "git fetch https://github.com/example/repo.git main\nFrom https://github.com/example/repo.git\n * branch            main       -> FETCH_HEAD\nAdded dir 'lib/repo'"
+          },
+          {
+            "command": "git subtree pull --prefix=lib/repo https://github.com/example/repo.git main",
+            "description": "Update a subtree with changes from the original repository",
+            "expectedOutput": "From https://github.com/example/repo.git\n * branch            main       -> FETCH_HEAD\nMerge made by the 'recursive' strategy."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Submodules vs. Subtrees",
+          "content": "Submodules and subtrees are two different approaches to including external repositories in your project:\n\n- **Submodules** store a reference to a specific commit in the external repository. They require extra steps when cloning and updating, but keep a clear separation between your code and the external code.\n\n- **Subtrees** actually copy the external code into your repository. This makes cloning and working with the repository simpler, but can make the history more complex when you update the external code.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "main", "label": "Main Repository" },
+                { "id": "submodule", "label": "Submodule Approach" },
+                { "id": "subtree", "label": "Subtree Approach" },
+                { "id": "ext", "label": "External Repository" }
+              ],
+              "edges": [
+                { "from": "main", "to": "submodule" },
+                { "from": "main", "to": "subtree" },
+                { "from": "submodule", "to": "ext", "label": "references" },
+                { "from": "subtree", "to": "ext", "label": "copies" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
