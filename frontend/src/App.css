@@ -82,18 +82,20 @@ footer {
 
 /* Timeline Bar */
 .timeline-bar {
-  height: 80px;
+  height: 120px;
   background-color: #f1f1f1;
   border-top: 1px solid #ddd;
   display: flex;
   align-items: center;
   padding: 0 1rem;
   overflow-x: auto;
+  margin-top: 1rem;
 }
 
 .timeline-label {
   font-weight: bold;
-  margin-right: 1rem;
+  font-size: 1.1rem;
+  margin-right: 1.5rem;
   white-space: nowrap;
 }
 
@@ -101,17 +103,19 @@ footer {
   display: flex;
   align-items: center;
   overflow-x: auto;
+  padding: 0.5rem 0;
+  flex-wrap: nowrap;
 }
 
 .timeline-step {
   background-color: #fff;
   border: 2px solid #0366d6;
-  border-radius: 4px;
-  padding: 0.5rem;
-  margin-right: 0.8rem;
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-right: 1.2rem;
   cursor: pointer;
-  min-width: 100px;
-  height: 50px;
+  min-width: 150px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -138,14 +142,16 @@ footer {
 
 .step-number {
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
 }
 
 .step-title {
-  font-size: 0.8rem;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 /* Terminal Emulation */

@@ -1,0 +1,430 @@
+{
+  "id": "git-internals-dag",
+  "title": "Git Internals: DAG",
+  "description": "Commit history as a Directed Acyclic Graph",
+  "content": {
+    "overview": "In this module, you'll learn how Git uses a Directed Acyclic Graph (DAG) to represent the commit history of a repository. Understanding this data structure is essential for mastering Git's branching, merging, and history manipulation capabilities.",
+    "steps": [
+      {
+        "title": "Introduction to DAGs in Git",
+        "content": "A Directed Acyclic Graph (DAG) is a graph that has directed edges and no cycles. In Git, each commit is a node in the graph, and each commit points to its parent commit(s), forming a directed graph. Since a commit cannot be its own ancestor (which would create a cycle), Git's commit history forms a DAG.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "A", "label": "Commit A" },
+              { "id": "B", "label": "Commit B" },
+              { "id": "C", "label": "Commit C" },
+              { "id": "D", "label": "Commit D" },
+              { "id": "E", "label": "Commit E" },
+              { "id": "F", "label": "Commit F" }
+            ],
+            "edges": [
+              { "from": "B", "to": "A", "label": "parent" },
+              { "from": "C", "to": "B", "label": "parent" },
+              { "from": "D", "to": "C", "label": "parent" },
+              { "from": "E", "to": "B", "label": "parent" },
+              { "from": "F", "to": "E", "label": "parent" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Creating a Simple Commit History",
+        "content": "Let's create a new repository and make a few commits to see how Git builds a DAG of commits.",
+        "commands": [
+          {
+            "command": "mkdir dag-demo",
+            "description": "Create a directory for our demo",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cd dag-demo",
+            "description": "Navigate to the project directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git init",
+            "description": "Initialize a Git repository",
+            "expectedOutput": "Initialized empty Git repository in dag-demo/.git/"
+          },
+          {
+            "command": "echo 'Initial content' > file.txt",
+            "description": "Create a file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add file.txt",
+            "description": "Add the file to the staging area",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Commit A: Initial commit\"",
+            "description": "Make the first commit",
+            "expectedOutput": "[master (root-commit) xxxxxxx] Commit A: Initial commit\n 1 file changed, 1 insertion(+)\n create mode 100644 file.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of the First Commit",
+          "content": "When you make the first commit in a repository:\n\n1. Git creates a commit object with metadata (author, timestamp, message)\n2. The commit points to a tree object representing the project's file structure\n3. Since it's the first commit, it has no parent commits\n4. Git updates the HEAD reference and the master branch to point to this commit\n\nThis first commit becomes the root node of the DAG that will grow as you add more commits.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "tree_a", "label": "Tree" },
+                { "id": "blob_a", "label": "Blob: file.txt" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" }
+              ],
+              "edges": [
+                { "from": "commit_a", "to": "tree_a", "label": "points to" },
+                { "from": "tree_a", "to": "blob_a", "label": "contains" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_a", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Adding More Commits",
+        "content": "Let's add more commits to our repository to see how the DAG grows.",
+        "commands": [
+          {
+            "command": "echo 'Second commit content' >> file.txt",
+            "description": "Modify the file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add file.txt",
+            "description": "Stage the changes",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Commit B: Add second line\"",
+            "description": "Make the second commit",
+            "expectedOutput": "[master xxxxxxx] Commit B: Add second line\n 1 file changed, 1 insertion(+)"
+          },
+          {
+            "command": "echo 'Third commit content' >> file.txt",
+            "description": "Modify the file again",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add file.txt",
+            "description": "Stage the changes",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Commit C: Add third line\"",
+            "description": "Make the third commit",
+            "expectedOutput": "[master xxxxxxx] Commit C: Add third line\n 1 file changed, 1 insertion(+)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Building the Commit Graph",
+          "content": "As you add more commits to the repository:\n\n1. Each new commit points to its parent commit (the previous HEAD)\n2. This creates a chain of commits, forming a linear path in the DAG\n3. The branch reference (master) and HEAD move forward to point to the newest commit\n4. Each commit represents a snapshot of the entire repository at that point in time\n\nThis linear chain is the simplest form of a DAG, but Git's DAG becomes more interesting when we introduce branching and merging.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" }
+              ],
+              "edges": [
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_c", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Visualizing the Commit Graph",
+        "content": "Git provides several commands to visualize the commit graph, which helps you understand the structure of the DAG.",
+        "commands": [
+          {
+            "command": "git log --oneline",
+            "description": "View a condensed commit history",
+            "expectedOutput": "xxxxxxx (HEAD -> master) Commit C: Add third line\nxxxxxxx Commit B: Add second line\nxxxxxxx Commit A: Initial commit"
+          },
+          {
+            "command": "git log --oneline --graph",
+            "description": "View the commit history as a graph",
+            "expectedOutput": "* xxxxxxx (HEAD -> master) Commit C: Add third line\n* xxxxxxx Commit B: Add second line\n* xxxxxxx Commit A: Initial commit"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Traversing the DAG for Log Output",
+          "content": "When you run `git log`, Git traverses the commit DAG starting from HEAD:\n\n1. It visits the commit that HEAD points to\n2. Then it follows the parent pointer to the previous commit\n3. It continues following parent pointers until it reaches a commit with no parents (the root commit)\n4. For each commit visited, it displays the commit information\n\nThe `--graph` option visualizes the DAG structure, showing branches and merges with ASCII art. For a linear history like ours so far, this doesn't show much, but it becomes very useful when the history includes branches and merges.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "log", "label": "git log" }
+              ],
+              "edges": [
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_c", "label": "points to" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "log", "to": "head", "label": "starts from" },
+                { "from": "log", "to": "commit_c", "label": "visits" },
+                { "from": "log", "to": "commit_b", "label": "visits" },
+                { "from": "log", "to": "commit_a", "label": "visits" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Creating Branches",
+        "content": "Branches in Git are simply pointers to specific commits in the DAG. Creating a branch adds a new reference but doesn't change the DAG structure itself.",
+        "commands": [
+          {
+            "command": "git branch feature",
+            "description": "Create a new branch named 'feature'",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git branch",
+            "description": "List all branches",
+            "expectedOutput": "  feature\n* master"
+          },
+          {
+            "command": "git log --oneline --graph --all",
+            "description": "View the commit graph with all branches",
+            "expectedOutput": "* xxxxxxx (HEAD -> master, feature) Commit C: Add third line\n* xxxxxxx Commit B: Add second line\n* xxxxxxx Commit A: Initial commit"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Branches as References to Commits",
+          "content": "When you create a branch in Git:\n\n1. Git adds a new reference (pointer) to the current commit\n2. This reference is stored in `.git/refs/heads/[branch-name]`\n3. The DAG structure itself doesn't change\n4. Both branches point to the same commit until you make new commits on either branch\n\nBranches are lightweight in Git because they're just references to commits in the DAG, not separate copies of the code.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" },
+                { "id": "feature", "label": "feature" }
+              ],
+              "edges": [
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_c", "label": "points to" },
+                { "from": "feature", "to": "commit_c", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Diverging History with Branches",
+        "content": "Let's switch to the feature branch and make some commits to see how the DAG structure diverges.",
+        "commands": [
+          {
+            "command": "git checkout feature",
+            "description": "Switch to the feature branch",
+            "expectedOutput": "Switched to branch 'feature'"
+          },
+          {
+            "command": "echo 'Feature branch content' >> feature.txt",
+            "description": "Create a new file in the feature branch",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add feature.txt",
+            "description": "Stage the new file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Commit D: Add feature file\"",
+            "description": "Commit on the feature branch",
+            "expectedOutput": "[feature xxxxxxx] Commit D: Add feature file\n 1 file changed, 1 insertion(+)\n create mode 100644 feature.txt"
+          },
+          {
+            "command": "git checkout master",
+            "description": "Switch back to the master branch",
+            "expectedOutput": "Switched to branch 'master'"
+          },
+          {
+            "command": "echo 'Master branch content' >> master.txt",
+            "description": "Create a new file in the master branch",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add master.txt",
+            "description": "Stage the new file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Commit E: Add master file\"",
+            "description": "Commit on the master branch",
+            "expectedOutput": "[master xxxxxxx] Commit E: Add master file\n 1 file changed, 1 insertion(+)\n create mode 100644 master.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Branching in the DAG",
+          "content": "When you make commits on different branches:\n\n1. The DAG structure diverges, with each branch forming its own path\n2. Both paths share a common history (the commits before the branch point)\n3. Each branch reference moves forward independently with new commits\n4. HEAD points to the current branch, which points to the latest commit on that branch\n\nThis divergence in the DAG is what allows Git to maintain multiple lines of development simultaneously.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "commit_d", "label": "Commit D" },
+                { "id": "commit_e", "label": "Commit E" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" },
+                { "id": "feature", "label": "feature" }
+              ],
+              "edges": [
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "commit_d", "to": "commit_c", "label": "parent" },
+                { "from": "commit_e", "to": "commit_c", "label": "parent" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_e", "label": "points to" },
+                { "from": "feature", "to": "commit_d", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Visualizing the Diverged Graph",
+        "content": "Now that our history has diverged, let's visualize the DAG to see the branch structure.",
+        "commands": [
+          {
+            "command": "git log --oneline --graph --all",
+            "description": "View the commit graph with all branches",
+            "expectedOutput": "* xxxxxxx (HEAD -> master) Commit E: Add master file\n| * xxxxxxx (feature) Commit D: Add feature file\n|/\n* xxxxxxx Commit C: Add third line\n* xxxxxxx Commit B: Add second line\n* xxxxxxx Commit A: Initial commit"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Visualizing Divergent Paths in the DAG",
+          "content": "The `git log --graph` output shows the structure of the DAG:\n\n1. The asterisks (*) represent commits\n2. The lines and slashes (|/) show the connections between commits\n3. Branch names appear next to the commits they point to\n4. HEAD indicates the current branch\n\nThis visualization helps you understand the branching structure and how commits relate to each other in the DAG.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "commit_d", "label": "Commit D (feature)" },
+                { "id": "commit_e", "label": "Commit E (master)" }
+              ],
+              "edges": [
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "commit_d", "to": "commit_c", "label": "parent" },
+                { "from": "commit_e", "to": "commit_c", "label": "parent" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Merging Branches",
+        "content": "Merging branches creates a new commit with multiple parents, which is where the DAG structure becomes more complex and interesting.",
+        "commands": [
+          {
+            "command": "git merge feature -m \"Commit F: Merge feature into master\"",
+            "description": "Merge the feature branch into master",
+            "expectedOutput": "Merge made by the 'recursive' strategy.\n feature.txt | 1 +\n 1 file changed, 1 insertion(+)\n create mode 100644 feature.txt"
+          },
+          {
+            "command": "git log --oneline --graph --all",
+            "description": "View the commit graph after the merge",
+            "expectedOutput": "*   xxxxxxx (HEAD -> master) Commit F: Merge feature into master\n|\\  \n| * xxxxxxx (feature) Commit D: Add feature file\n* | xxxxxxx Commit E: Add master file\n|/  \n* xxxxxxx Commit C: Add third line\n* xxxxxxx Commit B: Add second line\n* xxxxxxx Commit A: Initial commit"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Merge Commits in the DAG",
+          "content": "When you merge branches in Git:\n\n1. Git creates a new commit (the merge commit) with two parent commits\n2. The first parent is the commit that the current branch pointed to\n3. The second parent is the commit that the merged branch pointed to\n4. This creates a diamond shape in the DAG, joining the divergent paths\n5. The current branch reference moves to the new merge commit\n\nMerge commits are special because they have multiple parents, which is what makes Git's history a DAG rather than just a tree or a linear list.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit_a", "label": "Commit A" },
+                { "id": "commit_b", "label": "Commit B" },
+                { "id": "commit_c", "label": "Commit C" },
+                { "id": "commit_d", "label": "Commit D" },
+                { "id": "commit_e", "label": "Commit E" },
+                { "id": "commit_f", "label": "Commit F (Merge)" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" },
+                { "id": "feature", "label": "feature" }
+              ],
+              "edges": [
+                { "from": "commit_b", "to": "commit_a", "label": "parent" },
+                { "from": "commit_c", "to": "commit_b", "label": "parent" },
+                { "from": "commit_d", "to": "commit_c", "label": "parent" },
+                { "from": "commit_e", "to": "commit_c", "label": "parent" },
+                { "from": "commit_f", "to": "commit_e", "label": "parent 1" },
+                { "from": "commit_f", "to": "commit_d", "label": "parent 2" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit_f", "label": "points to" },
+                { "from": "feature", "to": "commit_d", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Examining Merge Commit Structure",
+        "content": "Let's examine the structure of the merge commit to see how it references multiple parents.",
+        "commands": [
+          {
+            "command": "git cat-file -p HEAD",
+            "description": "Examine the merge commit object",
+            "expectedOutput": "tree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nparent xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nparent xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nauthor Your Name <your.email@example.com> timestamp\ncommitter Your Name <your.email@example.com> timestamp\n\nCommit F: Merge feature into master"
+          },
+          {
+            "command": "git show --pretty=raw HEAD",
+            "description": "Show the raw commit details",
+            "expectedOutput": "commit xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\ntree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nparent xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nparent xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nauthor Your Name <your.email@example.com> timestamp\ncommitter Your Name <your.email@example.com> timestamp\n\n    Commit F: Merge feature into master"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Merge Commit",
+          "content": "A merge commit differs from a regular commit in its internal structure:\n\n1. Regular commits have a single parent reference\n2. Merge commits have multiple parent references (typically two)\n3. The first parent is the commit on the current branch before the merge\n4. The second parent is the tip of the branch being merged in\n5. Git uses this parent information to traverse the DAG correctly\n\nThis multi-parent structure is what allows Git to represent complex branching and merging patterns in its history.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "merge_commit", "label": "Merge Commit" },
+                { "id": "tree", "label": "Tree Object" },
+                { "id": "parent1", "label": "Parent 1 (master)" },
+                { "id": "parent2", "label": "Parent 2 (feature)" },
+                { "id": "metadata", "label": "Metadata" }
+              ],
+              "edges": [
+                { "from": "merge_commit", "to": "tree", "label": "points to" },
+                { "from": "merge_commit", "to": "parent1", "label": "first parent" },
+                { "from": "merge_commit", "to": "parent2", "label": "second parent" },
+                { "from": "merge_commit", "to": "metadata", "label": "contains" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

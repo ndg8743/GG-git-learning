@@ -1,0 +1,349 @@
+{
+  "id": "git-internals-trie",
+  "title": "Git Internals: Trie Data Structure",
+  "description": "How Git uses Tries for path storage",
+  "content": {
+    "overview": "In this module, you'll learn how Git uses a variant of the Trie data structure (specifically a Patricia Trie or Radix Tree) to efficiently store and retrieve file paths in the repository. Understanding this data structure is key to comprehending Git's internal operations and performance characteristics.",
+    "steps": [
+      {
+        "title": "Introduction to Tries in Git",
+        "content": "A Trie (pronounced 'try' or 'tree') is a tree-like data structure used for storing a dynamic set of strings. Git uses a specialized form of Trie called a Patricia Trie (or Radix Tree) to efficiently store file paths. This allows Git to quickly look up files and perform operations like checking if a file exists or finding all files with a common prefix.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "root", "label": "Root" },
+              { "id": "src", "label": "src/" },
+              { "id": "docs", "label": "docs/" },
+              { "id": "main", "label": "main.c" },
+              { "id": "utils", "label": "utils/" },
+              { "id": "helper", "label": "helper.c" },
+              { "id": "guide", "label": "guide.md" }
+            ],
+            "edges": [
+              { "from": "root", "to": "src", "label": "" },
+              { "from": "root", "to": "docs", "label": "" },
+              { "from": "src", "to": "main", "label": "" },
+              { "from": "src", "to": "utils", "label": "" },
+              { "from": "utils", "to": "helper", "label": "" },
+              { "from": "docs", "to": "guide", "label": "" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Creating a Repository with Files",
+        "content": "Let's create a repository with a few files to see how Git organizes them internally using a Trie structure.",
+        "commands": [
+          {
+            "command": "mkdir -p trie-demo/src/utils",
+            "description": "Create directories for our demo",
+            "expectedOutput": ""
+          },
+          {
+            "command": "mkdir -p trie-demo/docs",
+            "description": "Create more directories",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cd trie-demo",
+            "description": "Navigate to the project directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git init",
+            "description": "Initialize a Git repository",
+            "expectedOutput": "Initialized empty Git repository in trie-demo/.git/"
+          },
+          {
+            "command": "echo 'int main() { return 0; }' > src/main.c",
+            "description": "Create a main.c file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo 'void helper() {}' > src/utils/helper.c",
+            "description": "Create a helper.c file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '# Project Guide' > docs/guide.md",
+            "description": "Create a guide.md file",
+            "expectedOutput": ""
+          }
+        ]
+      },
+      {
+        "title": "Adding Files to Git",
+        "content": "When we add files to Git, they get stored in the object database, and their paths are organized in a Trie structure for efficient lookup.",
+        "commands": [
+          {
+            "command": "git add .",
+            "description": "Add all files to the staging area",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Initial commit with file structure\"",
+            "description": "Commit the files",
+            "expectedOutput": "[master (root-commit) xxxxxxx] Initial commit with file structure\n 3 files changed, 3 insertions(+)\n create mode 100644 docs/guide.md\n create mode 100644 src/main.c\n create mode 100644 src/utils/helper.c"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Path Decomposition in Git's Trie",
+          "content": "When you run `git add` and `git commit`, Git performs several operations related to path storage:\n\n1. Each file path is decomposed into components (directories and filename)\n2. These components are stored in a Trie structure where each node represents a path component\n3. Common prefixes (like 'src/') are stored only once, saving space\n4. The leaf nodes point to the actual file content (blob objects)\n\nThis structure allows Git to efficiently:\n- Find all files in a directory\n- Check if a specific file exists\n- Perform operations on files with common prefixes",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "root", "label": "Tree Object (Root)" },
+                { "id": "src", "label": "Tree: src/" },
+                { "id": "docs", "label": "Tree: docs/" },
+                { "id": "utils", "label": "Tree: utils/" },
+                { "id": "main", "label": "Blob: main.c" },
+                { "id": "helper", "label": "Blob: helper.c" },
+                { "id": "guide", "label": "Blob: guide.md" }
+              ],
+              "edges": [
+                { "from": "root", "to": "src", "label": "src/" },
+                { "from": "root", "to": "docs", "label": "docs/" },
+                { "from": "src", "to": "main", "label": "main.c" },
+                { "from": "src", "to": "utils", "label": "utils/" },
+                { "from": "utils", "to": "helper", "label": "helper.c" },
+                { "from": "docs", "to": "guide", "label": "guide.md" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Examining Git's Tree Objects",
+        "content": "Git's tree objects represent directories in your repository. They form the nodes of the Trie structure that Git uses to organize file paths.",
+        "commands": [
+          {
+            "command": "git cat-file -p HEAD",
+            "description": "Examine the tree object at the root of the repository",
+            "expectedOutput": "tree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nauthor Your Name <your.email@example.com> timestamp\ncommitter Your Name <your.email@example.com> timestamp\n\nInitial commit with file structure"
+          },
+          {
+            "command": "git ls-tree HEAD",
+            "description": "List the contents of the root tree",
+            "expectedOutput": "040000 tree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\tdocs\n040000 tree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\tsrc"
+          },
+          {
+            "command": "git ls-tree HEAD:src",
+            "description": "List the contents of the src directory",
+            "expectedOutput": "100644 blob xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\tmain.c\n040000 tree xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\tutils"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Tree Objects as Trie Nodes",
+          "content": "In Git's implementation, tree objects serve as the nodes in the Trie structure:\n\n- Each tree object contains entries for files (blobs) and subdirectories (other trees)\n- Each entry has a mode (file permissions), type (blob or tree), SHA-1 hash, and name\n- The tree objects form a hierarchical structure that mirrors your directory structure\n- This structure is a Patricia Trie optimized for path lookups\n\nWhen Git needs to find a file, it traverses this Trie structure, following the path components until it reaches the leaf node containing the file content.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "root", "label": "Root Tree" },
+                { "id": "src_tree", "label": "src/ Tree" },
+                { "id": "docs_tree", "label": "docs/ Tree" },
+                { "id": "utils_tree", "label": "utils/ Tree" },
+                { "id": "main_blob", "label": "main.c Blob" },
+                { "id": "helper_blob", "label": "helper.c Blob" },
+                { "id": "guide_blob", "label": "guide.md Blob" }
+              ],
+              "edges": [
+                { "from": "root", "to": "src_tree", "label": "src/" },
+                { "from": "root", "to": "docs_tree", "label": "docs/" },
+                { "from": "src_tree", "to": "main_blob", "label": "main.c" },
+                { "from": "src_tree", "to": "utils_tree", "label": "utils/" },
+                { "from": "utils_tree", "to": "helper_blob", "label": "helper.c" },
+                { "from": "docs_tree", "to": "guide_blob", "label": "guide.md" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Prefix Compression in Git's Trie",
+        "content": "One of the key optimizations in Git's Trie implementation is prefix compression. This means that common path prefixes are stored only once, saving space and improving lookup performance.",
+        "commands": [
+          {
+            "command": "mkdir -p src/utils/math",
+            "description": "Create a new directory with a common prefix",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo 'int add(int a, int b) { return a + b; }' > src/utils/math/add.c",
+            "description": "Create a new file in the math directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add src/utils/math/add.c",
+            "description": "Add the new file to Git",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Add math utility\"",
+            "description": "Commit the new file",
+            "expectedOutput": "[master xxxxxxx] Add math utility\n 1 file changed, 1 insertion(+)\n create mode 100644 src/utils/math/add.c"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Efficient Path Storage with Prefix Compression",
+          "content": "When you add a new file with a path that shares prefixes with existing files, Git's Trie structure efficiently handles this:\n\n1. The new path 'src/utils/math/add.c' shares the prefix 'src/utils/' with the existing path 'src/utils/helper.c'\n2. Git only needs to store the new components 'math/' and 'add.c'\n3. The existing prefix 'src/utils/' is reused\n\nThis prefix compression becomes increasingly important as your repository grows with many files in similar directory structures. It's one of the reasons Git can efficiently handle repositories with thousands or even millions of files.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "root", "label": "Root" },
+                { "id": "src", "label": "src/" },
+                { "id": "utils", "label": "utils/" },
+                { "id": "math", "label": "math/" },
+                { "id": "helper", "label": "helper.c" },
+                { "id": "add", "label": "add.c" }
+              ],
+              "edges": [
+                { "from": "root", "to": "src", "label": "" },
+                { "from": "src", "to": "utils", "label": "" },
+                { "from": "utils", "to": "helper", "label": "" },
+                { "from": "utils", "to": "math", "label": "" },
+                { "from": "math", "to": "add", "label": "" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Lookup Operations in Git's Trie",
+        "content": "Git's Trie structure enables efficient lookup operations, such as checking if a file exists or finding all files in a directory.",
+        "commands": [
+          {
+            "command": "git ls-files src/",
+            "description": "List all files under the src directory",
+            "expectedOutput": "src/main.c\nsrc/utils/helper.c\nsrc/utils/math/add.c"
+          },
+          {
+            "command": "git ls-files src/utils/",
+            "description": "List all files under the utils directory",
+            "expectedOutput": "src/utils/helper.c\nsrc/utils/math/add.c"
+          },
+          {
+            "command": "time git ls-files src/utils/",
+            "description": "Measure the time it takes to list files (notice how fast it is)",
+            "expectedOutput": "src/utils/helper.c\nsrc/utils/math/add.c\n\nreal    0mX.XXXs\nuser    0mX.XXXs\nsys     0mX.XXXs"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Trie Traversal for Path Lookups",
+          "content": "When you run commands like `git ls-files`, Git performs a traversal of its Trie structure:\n\n1. It starts at the root tree object\n2. For each component in the path ('src', then 'utils'), it follows the corresponding edge in the Trie\n3. Once it reaches the node for the specified path, it can efficiently list all descendant files\n\nThe time complexity for this operation is O(m + k), where m is the length of the path and k is the number of files found. This is much more efficient than having to scan through all files in the repository, which would be O(n) where n is the total number of files.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "root", "label": "Root" },
+                { "id": "src", "label": "src/" },
+                { "id": "utils", "label": "utils/" },
+                { "id": "math", "label": "math/" },
+                { "id": "helper", "label": "helper.c" },
+                { "id": "add", "label": "add.c" },
+                { "id": "main", "label": "main.c" }
+              ],
+              "edges": [
+                { "from": "root", "to": "src", "label": "" },
+                { "from": "src", "to": "utils", "label": "" },
+                { "from": "src", "to": "main", "label": "" },
+                { "from": "utils", "to": "helper", "label": "" },
+                { "from": "utils", "to": "math", "label": "" },
+                { "from": "math", "to": "add", "label": "" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Performance Implications of Trie Structure",
+        "content": "The Trie data structure used by Git has significant performance implications, especially for large repositories with many files.",
+        "commands": [
+          {
+            "command": "time git status",
+            "description": "Measure the time it takes to check the status of the repository",
+            "expectedOutput": "On branch master\nnothing to commit, working tree clean\n\nreal    0mX.XXXs\nuser    0mX.XXXs\nsys     0mX.XXXs"
+          },
+          {
+            "command": "find . -type f | wc -l",
+            "description": "Count the number of files in the repository",
+            "expectedOutput": "4"
+          },
+          {
+            "command": "echo 'This is a test' > test.txt",
+            "description": "Create a new file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "time git status",
+            "description": "Measure the time again with an untracked file",
+            "expectedOutput": "On branch master\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\ttest.txt\n\nnothing added to commit but untracked files present (use \"git add\" to track)\n\nreal    0mX.XXXs\nuser    0mX.XXXs\nsys     0mX.XXXs"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Trie Efficiency for Status Operations",
+          "content": "When you run `git status`, Git needs to compare the files in your working directory with the files in the index and the current commit. The Trie structure makes this operation efficient:\n\n1. Git traverses the working directory and builds a temporary Trie of file paths\n2. It then compares this with the Trie from the index and the current commit\n3. The comparison can be done efficiently by traversing both Tries simultaneously\n4. Files that exist in one Trie but not the other are untracked or deleted\n5. Files that exist in both but have different content are modified\n\nThis approach is much more efficient than comparing each file individually, especially for repositories with thousands of files. The time complexity is O(n log n) rather than O(n²), where n is the number of files.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "working", "label": "Working Directory Trie" },
+                { "id": "index", "label": "Index Trie" },
+                { "id": "head", "label": "HEAD Commit Trie" },
+                { "id": "compare1", "label": "Compare" },
+                { "id": "compare2", "label": "Compare" },
+                { "id": "untracked", "label": "Untracked Files" },
+                { "id": "modified", "label": "Modified Files" },
+                { "id": "staged", "label": "Staged Files" }
+              ],
+              "edges": [
+                { "from": "working", "to": "compare1", "label": "" },
+                { "from": "index", "to": "compare1", "label": "" },
+                { "from": "index", "to": "compare2", "label": "" },
+                { "from": "head", "to": "compare2", "label": "" },
+                { "from": "compare1", "to": "untracked", "label": "Files in working but not in index" },
+                { "from": "compare1", "to": "modified", "label": "Files with different content" },
+                { "from": "compare2", "to": "staged", "label": "Files in index but not in HEAD" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Trie Implementation in Git's Codebase",
+        "content": "While we can't directly examine Git's source code in this module, it's worth understanding how the Trie structure is implemented in Git's codebase.",
+        "behindTheCommand": {
+          "title": "Git's Trie Implementation Details",
+          "content": "In Git's actual implementation:\n\n1. The Trie structure is not explicitly called a 'Trie' in the code, but it functions as one\n2. Tree objects serve as the nodes of the Trie\n3. Each tree object contains entries that point to other trees (directories) or blobs (files)\n4. The entries are sorted by name for efficient binary search\n5. Path components are stored as strings in the tree entries\n6. The Trie is traversed by following pointers from one tree object to another\n\nThis implementation is highly optimized for Git's specific use case of managing file paths in a version control system. It balances memory usage with lookup performance, making Git efficient even for large repositories.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "tree_obj", "label": "Tree Object" },
+                { "id": "entry1", "label": "Entry: docs/" },
+                { "id": "entry2", "label": "Entry: src/" },
+                { "id": "entry3", "label": "Entry: main.c" },
+                { "id": "mode", "label": "Mode (permissions)" },
+                { "id": "type", "label": "Type (blob/tree)" },
+                { "id": "hash", "label": "SHA-1 Hash" },
+                { "id": "name", "label": "Name" }
+              ],
+              "edges": [
+                { "from": "tree_obj", "to": "entry1", "label": "contains" },
+                { "from": "tree_obj", "to": "entry2", "label": "contains" },
+                { "from": "tree_obj", "to": "entry3", "label": "contains" },
+                { "from": "entry1", "to": "mode", "label": "has" },
+                { "from": "entry1", "to": "type", "label": "has" },
+                { "from": "entry1", "to": "hash", "label": "has" },
+                { "from": "entry1", "to": "name", "label": "has" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

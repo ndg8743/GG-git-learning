@@ -1,0 +1,278 @@
+{
+  "id": "git-fundamentals",
+  "title": "Git Fundamentals",
+  "description": "Basic commands and concepts in Git",
+  "content": {
+    "overview": "In this module, you'll learn the fundamental Git commands and concepts that form the basis of version control with Git. You'll understand the Git workflow, including the working directory, staging area, and repository.",
+    "steps": [
+      {
+        "title": "Git Workflow Overview",
+        "content": "Git has three main areas: the working directory (where you edit files), the staging area (where you prepare changes for a commit), and the repository (where Git stores the history of your project). Understanding this workflow is essential for using Git effectively.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "working", "label": "Working Directory" },
+              { "id": "staging", "label": "Staging Area" },
+              { "id": "repo", "label": "Repository" }
+            ],
+            "edges": [
+              { "from": "working", "to": "staging", "label": "git add" },
+              { "from": "staging", "to": "repo", "label": "git commit" },
+              { "from": "repo", "to": "working", "label": "git checkout" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Checking Status",
+        "content": "The `git status` command shows the state of your working directory and staging area. It lets you see which changes have been staged, which haven't, and which files aren't being tracked by Git.",
+        "commands": [
+          {
+            "command": "echo 'Hello, Git!' > hello.txt",
+            "description": "Create a new file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your working directory",
+            "expectedOutput": "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\thello.txt\n\nnothing added to commit but untracked files present (use \"git add\" to track)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Tracks File Status",
+          "content": "When you run `git status`, Git compares the files in your working directory, staging area, and the most recent commit. It categorizes files as:\n\n- Untracked: New files that Git doesn't yet track\n- Modified: Tracked files with changes not yet staged\n- Staged: Files ready to be committed\n- Unmodified: Tracked files with no changes since the last commit\n\nGit uses the index file in the .git directory to keep track of the staging area state.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "untracked", "label": "Untracked" },
+                { "id": "modified", "label": "Modified" },
+                { "id": "staged", "label": "Staged" },
+                { "id": "committed", "label": "Committed" }
+              ],
+              "edges": [
+                { "from": "untracked", "to": "staged", "label": "git add" },
+                { "from": "modified", "to": "staged", "label": "git add" },
+                { "from": "staged", "to": "committed", "label": "git commit" },
+                { "from": "committed", "to": "modified", "label": "edit file" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Adding Files",
+        "content": "The `git add` command adds changes in your working directory to the staging area. It tells Git that you want to include updates to a particular file in the next commit.",
+        "commands": [
+          {
+            "command": "git add hello.txt",
+            "description": "Add the file to the staging area",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status again",
+            "expectedOutput": "Changes to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n\tnew file:   hello.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During git add",
+          "content": "When you run `git add`, Git calculates a checksum for each file (using the SHA-1 hash algorithm), stores that version of the file in the Git repository (as a blob), and adds that checksum to the staging area. When you run `git commit`, Git checksums each subdirectory and stores them as a tree object in the Git repository. Then Git creates a commit object that has the metadata and a pointer to the root project tree so it can re-create that snapshot when needed.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "file", "label": "File Content" },
+                { "id": "blob", "label": "Blob Object" },
+                { "id": "index", "label": "Staging Area (Index)" }
+              ],
+              "edges": [
+                { "from": "file", "to": "blob", "label": "SHA-1 hash" },
+                { "from": "blob", "to": "index", "label": "Reference added" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Committing Changes",
+        "content": "The `git commit` command saves your staged changes to the repository. A commit is like a snapshot of your project at a specific point in time.",
+        "commands": [
+          {
+            "command": "git commit -m \"Add hello.txt file\"",
+            "description": "Commit the staged changes with a message",
+            "expectedOutput": "[master (root-commit) xxxxxxx] Add hello.txt file\n 1 file changed, 1 insertion(+)\n create mode 100644 hello.txt"
+          },
+          {
+            "command": "git status",
+            "description": "Check the status after committing",
+            "expectedOutput": "On branch master\nnothing to commit, working tree clean"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Commit",
+          "content": "A Git commit contains:\n\n- A commit hash (SHA-1 identifier)\n- Author information (name and email)\n- Timestamp (date and time)\n- Commit message\n- Reference to the tree object representing the project state\n- References to parent commit(s)\n\nEach commit (except the first one) points to its parent commit(s), forming a directed acyclic graph of your project's history.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit", "label": "Commit Object" },
+                { "id": "tree", "label": "Tree Object" },
+                { "id": "blob1", "label": "Blob: hello.txt" },
+                { "id": "metadata", "label": "Metadata" },
+                { "id": "parent", "label": "Parent Commit" }
+              ],
+              "edges": [
+                { "from": "commit", "to": "tree", "label": "points to" },
+                { "from": "commit", "to": "metadata", "label": "contains" },
+                { "from": "commit", "to": "parent", "label": "points to" },
+                { "from": "tree", "to": "blob1", "label": "contains" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Viewing History",
+        "content": "The `git log` command shows the commit history of your repository. It allows you to see the commit messages, authors, dates, and commit hashes.",
+        "commands": [
+          {
+            "command": "git log",
+            "description": "View the commit history",
+            "expectedOutput": "commit xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (HEAD -> master)\nAuthor: Your Name <your.email@example.com>\nDate:   Wed Jan 1 12:00:00 2025 -0500\n\n    Add hello.txt file"
+          },
+          {
+            "command": "git log --oneline",
+            "description": "View a condensed commit history",
+            "expectedOutput": "xxxxxxx (HEAD -> master) Add hello.txt file"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Traversing the Commit Graph",
+          "content": "When you run `git log`, Git starts at the current HEAD and traverses the commit graph by following each commit's pointer to its parent(s). This creates a linear history view, even though the underlying structure might be a complex directed acyclic graph (especially with branches and merges).\n\nGit uses the references in the .git/refs directory to know where branches point in the commit graph.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "head", "label": "HEAD" },
+                { "id": "master", "label": "master" },
+                { "id": "commit1", "label": "Commit A" },
+                { "id": "commit2", "label": "Commit B" },
+                { "id": "commit3", "label": "Commit C" }
+              ],
+              "edges": [
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit1", "label": "points to" },
+                { "from": "commit1", "to": "commit2", "label": "parent" },
+                { "from": "commit2", "to": "commit3", "label": "parent" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Making Changes",
+        "content": "Let's modify our file and see how Git tracks changes to existing files.",
+        "commands": [
+          {
+            "command": "echo 'Another line.' >> hello.txt",
+            "description": "Add another line to the file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status",
+            "expectedOutput": "On branch master\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git restore <file>...\" to discard changes in working directory)\n\tmodified:   hello.txt\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"
+          },
+          {
+            "command": "git diff",
+            "description": "See what changed",
+            "expectedOutput": "diff --git a/hello.txt b/hello.txt\nindex xxxxxxx..xxxxxxx 100644\n--- a/hello.txt\n+++ b/hello.txt\n@@ -1 +1,2 @@\n Hello, Git!\n+Another line."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Tracks Changes",
+          "content": "Git doesn't store file differences; instead, it stores complete snapshots of your files at each commit. For efficiency, if a file hasn't changed, Git stores a reference to the previous identical file it has already stored.\n\nWhen you run `git diff`, Git compares the working directory with the staging area. It shows lines that were added with a '+' prefix and removed lines with a '-' prefix.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit1", "label": "Commit 1" },
+                { "id": "tree1", "label": "Tree 1" },
+                { "id": "blob1", "label": "Blob: hello.txt v1" },
+                { "id": "commit2", "label": "Commit 2" },
+                { "id": "tree2", "label": "Tree 2" },
+                { "id": "blob2", "label": "Blob: hello.txt v2" }
+              ],
+              "edges": [
+                { "from": "commit1", "to": "tree1", "label": "points to" },
+                { "from": "tree1", "to": "blob1", "label": "contains" },
+                { "from": "commit2", "to": "tree2", "label": "points to" },
+                { "from": "commit2", "to": "commit1", "label": "parent" },
+                { "from": "tree2", "to": "blob2", "label": "contains" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Staging and Committing Changes",
+        "content": "Now let's stage and commit our changes to the repository.",
+        "commands": [
+          {
+            "command": "git add hello.txt",
+            "description": "Stage the modified file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status",
+            "expectedOutput": "On branch master\nChanges to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n\tmodified:   hello.txt"
+          },
+          {
+            "command": "git commit -m \"Add another line to hello.txt\"",
+            "description": "Commit the staged changes",
+            "expectedOutput": "[master xxxxxxx] Add another line to hello.txt\n 1 file changed, 1 insertion(+)"
+          },
+          {
+            "command": "git log --oneline",
+            "description": "View the commit history",
+            "expectedOutput": "xxxxxxx (HEAD -> master) Add another line to hello.txt\nxxxxxxx Add hello.txt file"
+          }
+        ]
+      },
+      {
+        "title": "Viewing Changes Between Commits",
+        "content": "You can use `git diff` with commit references to see changes between different commits.",
+        "commands": [
+          {
+            "command": "git diff HEAD~1 HEAD",
+            "description": "Compare the previous commit with the current one",
+            "expectedOutput": "diff --git a/hello.txt b/hello.txt\nindex xxxxxxx..xxxxxxx 100644\n--- a/hello.txt\n+++ b/hello.txt\n@@ -1 +1,2 @@\n Hello, Git!\n+Another line."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Commit References in Git",
+          "content": "Git provides several ways to refer to commits:\n\n- Full SHA-1 hash: `git show a1b2c3d4e5f6...`\n- Abbreviated hash: `git show a1b2c3d`\n- HEAD: The current commit your working directory is based on\n- HEAD~1: The commit before HEAD\n- HEAD~2: Two commits before HEAD\n- Branch names: `git show master`\n- Tags: `git show v1.0`\n\nThese references make it easier to navigate the commit history without memorizing commit hashes.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "head", "label": "HEAD" },
+                { "id": "commit1", "label": "Current Commit" },
+                { "id": "commit2", "label": "HEAD~1" },
+                { "id": "commit3", "label": "HEAD~2" }
+              ],
+              "edges": [
+                { "from": "head", "to": "commit1", "label": "points to" },
+                { "from": "commit1", "to": "commit2", "label": "parent" },
+                { "from": "commit2", "to": "commit3", "label": "parent" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -4,35 +4,182 @@
       "id": "git-intro",
       "title": "Introduction to Git",
       "description": "Learn the basics of Git and version control",
-      "position": { "x": 250, "y": 250 },
+      "position": { "x": 150, "y": 250 },
       "prerequisites": [],
-      "nextModules": ["git-branching", "git-commits"]
+      "nextModules": ["git-fundamentals", "git-internals-objects"]
     },
     {
-      "id": "git-branching",
-      "title": "Git Branching",
-      "description": "Learn how to create and manage branches in Git",
-      "position": { "x": 450, "y": 200 },
+      "id": "git-fundamentals",
+      "title": "Git Fundamentals",
+      "description": "Basic commands and concepts in Git",
+      "position": { "x": 300, "y": 150 },
       "prerequisites": ["git-intro"],
+      "nextModules": ["git-branching-basics", "git-remote-repos"]
+    },
+    {
+      "id": "git-branching-basics",
+      "title": "Branching Basics",
+      "description": "Creating and managing branches in Git",
+      "position": { "x": 450, "y": 100 },
+      "prerequisites": ["git-fundamentals"],
+      "nextModules": ["git-advanced-branching", "git-internals-avl"]
+    },
+    {
+      "id": "git-remote-repos",
+      "title": "Remote Repositories",
+      "description": "Working with GitHub, GitLab, and Bitbucket",
+      "position": { "x": 450, "y": 200 },
+      "prerequisites": ["git-fundamentals"],
+      "nextModules": ["git-collaboration"]
+    },
+    {
+      "id": "git-collaboration",
+      "title": "Collaboration Workflows",
+      "description": "Pull requests, code reviews, and best practices",
+      "position": { "x": 600, "y": 200 },
+      "prerequisites": ["git-remote-repos"],
+      "nextModules": ["git-hooks", "git-security"]
+    },
+    {
+      "id": "git-internals-objects",
+      "title": "Git Internals: Objects & References",
+      "description": "Understanding Git's internal data structures",
+      "position": { "x": 300, "y": 350 },
+      "prerequisites": ["git-intro"],
+      "nextModules": ["git-internals-trie", "git-internals-dag"]
+    },
+    {
+      "id": "git-internals-trie",
+      "title": "Git Internals: Trie Data Structure",
+      "description": "How Git uses Tries for path storage",
+      "position": { "x": 450, "y": 300 },
+      "prerequisites": ["git-internals-objects"],
+      "nextModules": ["git-performance"]
+    },
+    {
+      "id": "git-internals-dag",
+      "title": "Git Internals: DAG",
+      "description": "Commit history as a Directed Acyclic Graph",
+      "position": { "x": 450, "y": 400 },
+      "prerequisites": ["git-internals-objects"],
+      "nextModules": ["git-rebasing", "git-internals-skiplist"]
+    },
+    {
+      "id": "git-internals-avl",
+      "title": "Git Internals: AVL Trees",
+      "description": "Self-balancing trees in Git's implementation",
+      "position": { "x": 600, "y": 100 },
+      "prerequisites": ["git-branching-basics"],
+      "nextModules": ["git-custom-commands"]
+    },
+    {
+      "id": "git-internals-skiplist",
+      "title": "Git Internals: Skip Lists",
+      "description": "Fast commit indexing and searching",
+      "position": { "x": 600, "y": 400 },
+      "prerequisites": ["git-internals-dag"],
+      "nextModules": ["git-bisect"]
+    },
+    {
+      "id": "git-internals-disjoint",
+      "title": "Git Internals: Disjoint Sets",
+      "description": "Merge tracking with Union-Find data structures",
+      "position": { "x": 750, "y": 300 },
+      "prerequisites": ["git-internals-dag"],
       "nextModules": []
     },
     {
-      "id": "git-commits",
-      "title": "Git Commits",
-      "description": "Learn how to make and manage commits in Git",
-      "position": { "x": 450, "y": 300 },
-      "prerequisites": ["git-intro"],
+      "id": "git-internals-bloom",
+      "title": "Git Internals: Bloom Filters",
+      "description": "Fast path existence checking in Git",
+      "position": { "x": 600, "y": 300 },
+      "prerequisites": ["git-internals-trie"],
+      "nextModules": []
+    },
+    {
+      "id": "git-advanced-branching",
+      "title": "Advanced Branching Strategies",
+      "description": "Git Flow, GitHub Flow, and trunk-based development",
+      "position": { "x": 750, "y": 100 },
+      "prerequisites": ["git-branching-basics"],
+      "nextModules": []
+    },
+    {
+      "id": "git-rebasing",
+      "title": "Rebasing and History Manipulation",
+      "description": "Interactive rebasing and squashing commits",
+      "position": { "x": 600, "y": 500 },
+      "prerequisites": ["git-internals-dag"],
+      "nextModules": []
+    },
+    {
+      "id": "git-hooks",
+      "title": "Git Hooks and Automation",
+      "description": "Client-side and server-side hooks",
+      "position": { "x": 750, "y": 200 },
+      "prerequisites": ["git-collaboration"],
+      "nextModules": []
+    },
+    {
+      "id": "git-submodules",
+      "title": "Git Submodules and Subtrees",
+      "description": "Managing project dependencies",
+      "position": { "x": 750, "y": 400 },
+      "prerequisites": ["git-remote-repos"],
+      "nextModules": []
+    },
+    {
+      "id": "git-bisect",
+      "title": "Git Bisect and Debugging",
+      "description": "Binary search for bugs in your history",
+      "position": { "x": 750, "y": 500 },
+      "prerequisites": ["git-internals-skiplist"],
+      "nextModules": []
+    },
+    {
+      "id": "git-performance",
+      "title": "Git Performance Optimization",
+      "description": "Managing large repositories efficiently",
+      "position": { "x": 600, "y": 600 },
+      "prerequisites": ["git-internals-trie", "git-internals-bloom"],
+      "nextModules": []
+    },
+    {
+      "id": "git-security",
+      "title": "Git Security Best Practices",
+      "description": "Secure workflows and managing secrets",
+      "position": { "x": 750, "y": 600 },
+      "prerequisites": ["git-collaboration"],
+      "nextModules": []
+    },
+    {
+      "id": "git-custom-commands",
+      "title": "Custom Git Commands and Extensions",
+      "description": "Creating aliases and Git extensions",
+      "position": { "x": 900, "y": 100 },
+      "prerequisites": ["git-internals-avl"],
       "nextModules": []
     }
   ],
   "connections": [
-    {
-      "source": "git-intro",
-      "target": "git-branching"
-    },
-    {
-      "source": "git-intro",
-      "target": "git-commits"
-    }
+    { "source": "git-intro", "target": "git-fundamentals" },
+    { "source": "git-intro", "target": "git-internals-objects" },
+    { "source": "git-fundamentals", "target": "git-branching-basics" },
+    { "source": "git-fundamentals", "target": "git-remote-repos" },
+    { "source": "git-branching-basics", "target": "git-advanced-branching" },
+    { "source": "git-branching-basics", "target": "git-internals-avl" },
+    { "source": "git-remote-repos", "target": "git-collaboration" },
+    { "source": "git-remote-repos", "target": "git-submodules" },
+    { "source": "git-collaboration", "target": "git-hooks" },
+    { "source": "git-collaboration", "target": "git-security" },
+    { "source": "git-internals-objects", "target": "git-internals-trie" },
+    { "source": "git-internals-objects", "target": "git-internals-dag" },
+    { "source": "git-internals-trie", "target": "git-internals-bloom" },
+    { "source": "git-internals-trie", "target": "git-performance" },
+    { "source": "git-internals-dag", "target": "git-rebasing" },
+    { "source": "git-internals-dag", "target": "git-internals-skiplist" },
+    { "source": "git-internals-dag", "target": "git-internals-disjoint" },
+    { "source": "git-internals-skiplist", "target": "git-bisect" },
+    { "source": "git-internals-avl", "target": "git-custom-commands" }
   ]
 }
