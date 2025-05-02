@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 // API Routes
-app.get('/api/modules', (req, res) => {
+app.get('/git/api/modules', (req, res) => {
   try {
     const modulesPath = path.join(__dirname, 'src/data/modules.json');
     const modulesData = JSON.parse(fs.readFileSync(modulesPath, 'utf8'));
@@ -29,7 +29,7 @@ app.get('/api/modules', (req, res) => {
   }
 });
 
-app.get('/api/modules/:id', (req, res) => {
+app.get('/git/api/modules/:id', (req, res) => {
   try {
     const moduleId = req.params.id;
     const modulePath = path.join(__dirname, `src/data/modules/${moduleId}.json`);
@@ -46,10 +46,12 @@ app.get('/api/modules/:id', (req, res) => {
   }
 });
 
-
+app.get('/git/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/manifest.json'));
+});
 
 // Webhook endpoint for GitHub
-app.post('/webhook', (req, res) => {
+app.post('/git/webhook', (req, res) => {
   const signature = req.headers['x-hub-signature-256'];
   const eventType = req.headers['x-github-event'];
   const payload = req.body;
@@ -97,13 +99,12 @@ app.post('/webhook', (req, res) => {
     });
   }
 });
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-// Anything that doesn't match the above, send back the index.html file
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
-});
+
+// Specific route for /git/static/ files
+app.use('/git', express.static(path.join(__dirname, '../frontend/build')));
+
+
 
 // Start server
 app.listen(PORT, () => {
