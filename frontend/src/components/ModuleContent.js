@@ -25,11 +25,17 @@ const ModuleContent = () => {
         console.log('Fetching module with ID:', moduleId);
         const response = await axios.get(`${config.apiUrl}/modules/${moduleId}`);
         console.log('Module data received:', response.data);
+        
+        // Validate module data
+        if (!response.data || !response.data.content || !response.data.content.steps) {
+          throw new Error('Invalid module data structure');
+        }
+        
         setModule(response.data);
         setLoading(false);
         
         // Initialize file structure based on module
-        if (response.data.content.steps[0].fileChanges) {
+        if (response.data.content.steps[0] && response.data.content.steps[0].fileChanges) {
           const initialFileStructure = {};
           response.data.content.steps[0].fileChanges.forEach(change => {
             if (change.type === 'create') {
@@ -57,7 +63,11 @@ const ModuleContent = () => {
           });
         }
       } catch (err) {
-        setError('Failed to fetch module. Please try again later.');
+        const errorMessage = err.response && err.response.status === 404 
+          ? `Module "${moduleId}" not found. Please check the module ID and try again.`
+          : 'Failed to fetch module. Please try again later.';
+        
+        setError(errorMessage);
         setLoading(false);
         console.error('Error fetching module:', err);
       }

@@ -52,9 +52,15 @@ const LearningJourney = ({ modules, connections }) => {
         borderColor = '#fd7e14'; // orange for collaboration
       }
 
+      // Adjust positions to have more spacing
+      const adjustedPosition = {
+        x: module.position.x * 2.0, // Increase horizontal spacing by 100%
+        y: module.position.y * 1.8  // Increase vertical spacing by 80%
+      };
+
       return {
         id: module.id,
-        position: module.position,
+        position: adjustedPosition,
         data: { 
           label: (
             <div className="module-node-content">
@@ -70,7 +76,7 @@ const LearningJourney = ({ modules, connections }) => {
           border: `2px solid ${borderColor}`,
           borderRadius: '8px',
           padding: '10px',
-          width: 180,
+          width: 200, // Slightly wider nodes
         },
       };
     });
@@ -134,11 +140,12 @@ const LearningJourney = ({ modules, connections }) => {
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         fitView
-        minZoom={0.5}
+        fitViewOptions={{ padding: 0.3 }}
+        minZoom={0.3}
         maxZoom={1.5}
-        defaultViewport={{ zoom: 0.8 }}
+        defaultViewport={{ zoom: 0.6 }}
         attributionPosition="bottom-right"
-        nodesDraggable={false}
+        nodesDraggable={true}
       >
         <Background color="#f0f0f0" gap={16} />
         <Controls />

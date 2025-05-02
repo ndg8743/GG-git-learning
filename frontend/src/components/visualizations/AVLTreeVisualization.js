@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
  * A specialized component for visualizing AVL trees
  * This provides an interactive representation of how AVL trees work with balancing
  */
-const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
+const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
   const [tree, setTree] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [message, setMessage] = useState('');
@@ -142,8 +142,8 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
 
     // Calculate positions for visualization
     calculatePositions() {
-      const nodeSpacing = 60;
-      const levelHeight = 80;
+      const nodeSpacing = 80; // Increased from 60
+      const levelHeight = 100; // Increased from 80
       
       // Helper function to calculate positions recursively
       const calculateNodePositions = (node, level, leftPos, rightPos) => {
@@ -157,7 +157,7 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
         
         // Calculate positions for children
         const nextLevel = level + 1;
-        const gap = Math.max(20, (rightPos - leftPos) / 4);
+        const gap = Math.max(30, (rightPos - leftPos) / 3); // Increased gap
         
         if (node.left) {
           calculateNodePositions(node.left, nextLevel, leftPos, x - gap);
@@ -246,9 +246,9 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
       nodes.push(
         <g key={`node-${node.key}`} transform={`translate(${node.x}, ${node.y})`}>
           <circle 
-            r="20" 
-            fill={Math.abs(node.balanceFactor) > 1 ? '#dc3545' : '#28a745'} 
-            stroke="#333" 
+            r="25" 
+            fill={Math.abs(node.balanceFactor) > 1 ? 'var(--danger-color)' : 'var(--success-color)'} 
+            stroke="var(--border-color)" 
             strokeWidth="2"
           />
           <text 
@@ -256,15 +256,17 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
             dominantBaseline="middle" 
             fill="white" 
             fontWeight="bold"
+            fontSize="14"
           >
             {node.key}
           </text>
           <text 
             textAnchor="middle" 
             dominantBaseline="middle" 
-            y="35" 
-            fill="#666" 
+            y="40" 
+            fill="var(--secondary-color)" 
             fontSize="12"
+            fontWeight="bold"
           >
             BF: {node.balanceFactor}
           </text>
@@ -280,7 +282,7 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
             y1={node.y} 
             x2={node.left.x} 
             y2={node.left.y} 
-            stroke="#666" 
+            stroke="var(--secondary-color)" 
             strokeWidth="2"
           />
         );
@@ -295,7 +297,7 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
             y1={node.y} 
             x2={node.right.x} 
             y2={node.right.y} 
-            stroke="#666" 
+            stroke="var(--secondary-color)" 
             strokeWidth="2"
           />
         );
@@ -321,10 +323,11 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
       <div style={{ 
         marginTop: '20px', 
         padding: '10px', 
-        backgroundColor: '#cce5ff', 
-        border: '1px solid #b8daff', 
+        backgroundColor: 'var(--primary-color)',
+        opacity: 0.15,
+        border: `1px solid var(--primary-color)`, 
         borderRadius: '4px',
-        color: '#004085'
+        color: 'var(--text-color)'
       }}>
         <h4>Rotation Performed:</h4>
         <p>{message}</p>
@@ -343,11 +346,13 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
 
   return (
     <div style={{ 
-      border: '1px solid #ddd', 
+      border: '1px solid var(--border-color)', 
       borderRadius: '5px', 
       padding: '20px',
       maxWidth: width,
-      margin: '0 auto'
+      margin: '0 auto',
+      backgroundColor: 'var(--card-bg)',
+      color: 'var(--text-color)'
     }}>
       <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Interactive AVL Tree</h3>
       
@@ -361,14 +366,16 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
             flex: 1, 
             padding: '8px 12px', 
             borderRadius: '4px', 
-            border: '1px solid #ccc' 
+            border: `1px solid var(--border-color)`,
+            backgroundColor: 'var(--card-bg)',
+            color: 'var(--text-color)'
           }}
         />
         <button 
           onClick={insertValue}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#28a745', 
+            backgroundColor: 'var(--success-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -381,7 +388,7 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
           onClick={resetTree}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#6c757d', 
+            backgroundColor: 'var(--secondary-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -394,7 +401,7 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
           onClick={addSampleData}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#0366d6', 
+            backgroundColor: 'var(--primary-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -409,21 +416,24 @@ const AVLTreeVisualization = ({ data, width = 800, height = 500 }) => {
         <div style={{ 
           marginBottom: '20px', 
           padding: '10px', 
-          backgroundColor: '#d4edda', 
-          border: '1px solid #c3e6cb', 
+          backgroundColor: 'var(--success-color)',
+          opacity: 0.2,
+          border: `1px solid var(--success-color)`, 
           borderRadius: '4px',
-          color: '#155724'
+          color: 'var(--text-color)'
         }}>
           {message}
         </div>
       )}
       
       <div style={{ 
-        border: '1px solid #ddd', 
+        border: '1px solid var(--border-color)', 
         borderRadius: '4px', 
         overflow: 'auto',
         marginBottom: '20px',
-        backgroundColor: '#f8f9fa'
+        backgroundColor: 'var(--card-bg)',
+        minHeight: '400px',
+        boxShadow: '0 2px 5px var(--shadow-color)'
       }}>
         {renderTree()}
       </div>
