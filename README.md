@@ -14,6 +14,9 @@ This application provides an interactive learning experience for Git, with a foc
 - **File Structure Visualization**: See how Git commands affect the file structure
 - **Behind the Command Explanations**: Understand what happens under the hood when you run Git commands
 - **Timeline Navigation**: Navigate between different states in the learning sequence
+- **Dark Mode Support**: Toggle between light and dark themes for comfortable viewing
+- **Draggable Diagrams**: Interactive diagrams that can be moved around for better visualization
+- **Debug Information Toggle**: Show or hide visualization data and debug information
 
 ## Project Structure
 
@@ -62,7 +65,8 @@ npm run dev
 
 This will start:
 - Backend server on http://localhost:38765
-- Frontend development server on http://localhost:38765
+- Frontend development server on http://localhost:3000/git
+- Access the application at http://localhost:38765/git
 
 #### Production Mode
 
@@ -73,7 +77,7 @@ npm run build
 npm start
 ```
 
-This will build the frontend and start the backend server which serves the frontend at http://localhost:38765
+This will build the frontend and start the backend server which serves the frontend at http://localhost:38765/git
 
 #### Using Docker
 
@@ -91,7 +95,7 @@ npm run docker:build
 npm run docker:up
 ```
 
-3. Access the application at http://localhost:38765
+3. Access the application at http://localhost:38765/git
 
 4. View logs:
 
@@ -136,6 +140,10 @@ Each module consists of:
 1. **Introduction to Git**: Learn the basics of Git and version control
 2. **Git Branching**: Learn how to create and manage branches in Git
 3. **Git Commits**: Learn how to make and manage commits in Git
+
+## Credits
+
+Created by Nathan Gopee and Mostafa Ibrahim for FOCS.
 
 ## License
 

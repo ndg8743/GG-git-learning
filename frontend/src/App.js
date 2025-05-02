@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 import config from './config';
@@ -43,7 +43,11 @@ function App() {
       <div className="App">
         <header className="App-header">
           <div className="header-content">
-            <h1>Git Learning Journey!</h1>
+            <h1>
+              <Link to="/" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+                Git Learning Journey!
+              </Link>
+            </h1>
             <ThemeToggle />
           </div>
         </header>
@@ -61,6 +65,7 @@ function App() {
         </main>
         <footer>
           <p>Git Learning Journey - A modular approach to learning Git</p>
+          <p>Created by Nathan Gopee and Mostafa Ibrahim for FOCS</p>
         </footer>
       </div>
     </Router>

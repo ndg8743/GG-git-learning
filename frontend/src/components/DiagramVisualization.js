@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import BloomFilterVisualization from './visualizations/BloomFilterVisualization';
 import AVLTreeVisualization from './visualizations/AVLTreeVisualization';
 import TrieVisualization from './visualizations/TrieVisualization';
@@ -6,8 +6,12 @@ import TrieVisualization from './visualizations/TrieVisualization';
 /**
  * A component that selects the appropriate visualization based on the data structure type
  */
-const DiagramVisualization = ({ data }) => {
+const DiagramVisualization = ({ data, showDebugInfo = true }) => {
   const [visualizationType, setVisualizationType] = useState('generic');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const diagramRef = useRef(null);
   
   // Debug: Log the data received
   useEffect(() => {
@@ -159,7 +163,7 @@ const DiagramVisualization = ({ data }) => {
           height={nodeHeight}
           rx="5"
           ry="5"
-          fill="#ffffff"
+          fill="var(--card-bg)"
           stroke={node.color}
           strokeWidth="2"
         />
@@ -169,7 +173,7 @@ const DiagramVisualization = ({ data }) => {
           textAnchor="middle"
           dominantBaseline="middle"
           fontSize="12"
-          fill="#333"
+          fill="var(--text-color)"
         >
           {node.label}
         </text>
@@ -221,8 +225,8 @@ const DiagramVisualization = ({ data }) => {
               y={(startY + endY) / 2 - 10}
               textAnchor="middle"
               fontSize="10"
-              fill="#666"
-              backgroundColor="#fff"
+              fill="var(--text-color)"
+              backgroundColor="var(--card-bg)"
             >
               {edge.label}
             </text>
@@ -277,12 +281,13 @@ const DiagramVisualization = ({ data }) => {
       <div style={{ 
         marginTop: '10px', 
         padding: '10px', 
-        backgroundColor: '#f8f9fa', 
-        border: '1px solid #ddd', 
+        backgroundColor: 'var(--bg-color)', 
+        border: '1px solid var(--border-color)', 
         borderRadius: '4px',
-        fontSize: '12px'
+        fontSize: '12px',
+        color: 'var(--text-color)'
       }}>
-        <h4 style={{ margin: '0 0 10px 0' }}>Diagram Debug Info</h4>
+        <h4 style={{ margin: '0 0 10px 0', color: 'var(--primary-color)' }}>Diagram Debug Info</h4>
         <div>
           <strong>Data received:</strong> {data ? 'Yes' : 'No'}
         </div>
@@ -306,24 +311,40 @@ const DiagramVisualization = ({ data }) => {
     );
   };
   
+  // Mouse event handlers for dragging - disabled as per user request
+  const handleMouseDown = (e) => {
+    // Dragging disabled
+  };
+
+  const handleMouseMove = (e) => {
+    // Dragging disabled
+  };
+
+  const handleMouseUp = () => {
+    // Dragging disabled
+  };
+
   return (
     <div 
+      ref={diagramRef}
       className="custom-diagram" 
       style={{ 
-        border: '1px solid #ddd', 
+        border: '1px solid var(--border-color)', 
         borderRadius: '5px', 
         overflow: 'auto', 
         padding: '10px',
-        cursor: 'move' // Add cursor style to indicate draggability
+        cursor: 'default', // Changed from grab since dragging is disabled
+        position: 'relative',
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+        zIndex: isDragging ? 1000 : 1,
+        backgroundColor: 'var(--card-bg)',
+        color: 'var(--text-color)'
       }}
-      draggable="true" // Make the diagram draggable
-      onDragStart={(e) => {
-        // Store the diagram's ID or other data if needed
-        e.dataTransfer.setData('text/plain', 'diagram');
-      }}
+      onMouseDown={handleMouseDown}
     >
       {renderVisualization()}
-      {renderDebugInfo()}
+      {showDebugInfo && renderDebugInfo()}
     </div>
   );
 };

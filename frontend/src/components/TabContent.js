@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import DiagramVisualization from './DiagramVisualization';
 
-const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
+const TabContent = ({ activeTab, currentStep, module, fileStructure, showDebugInfo = true }) => {
   if (!module || !module.content || !module.content.steps || !module.content.steps[currentStep]) {
     return <div>No content available</div>;
   }
@@ -96,15 +96,17 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
               <div className="diagram" title="Interactive diagram: Hover over nodes for more information">
                 <h4 className="visualization-title">Interactive Diagram</h4>
                 <p className="visualization-description">This diagram illustrates the concepts explained above. Hover over elements for more details.</p>
-                <div style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '20px', border: '1px solid #ddd' }}>
-                  <h5 style={{ marginTop: '0', color: '#0366d6' }}>Visualization Data:</h5>
-                  <div style={{ maxHeight: '200px', overflow: 'auto' }}>
-                    <pre style={{ margin: '0' }}>
-                      {JSON.stringify(visualization.data, null, 2)}
-                    </pre>
+                {showDebugInfo && (
+                  <div style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '20px', border: '1px solid #ddd' }}>
+                    <h5 style={{ marginTop: '0', color: '#0366d6' }}>Visualization Data:</h5>
+                    <div style={{ maxHeight: '200px', overflow: 'auto' }}>
+                      <pre style={{ margin: '0' }}>
+                        {JSON.stringify(visualization.data, null, 2)}
+                      </pre>
+                    </div>
                   </div>
-                </div>
-                <DiagramVisualization data={visualization.data} />
+                )}
+                <DiagramVisualization data={visualization.data} showDebugInfo={showDebugInfo} />
               </div>
             )}
             
@@ -126,24 +128,26 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
         )}
         
         {/* Debug information */}
-        <div className="debug-info" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px' }}>
-          <h4>Debug Information</h4>
-          <p>Current step: {currentStep}</p>
-          <p>Active tab: {activeTab}</p>
-          <p>Module ID: {module.id}</p>
-          <p>Step title: {currentStepData.title}</p>
-          <p>Behind the Command available: {currentStepData.behindTheCommand ? 'Yes' : 'No'}</p>
-          <p>Visualization data available: {visualization ? 'Yes' : 'No'}</p>
-          {visualization && (
-            <>
-              <p>Visualization type: {visualization.type}</p>
-              <p>Data nodes: {visualization.data?.nodes?.length || 0}</p>
-              <p>Data edges: {visualization.data?.edges?.length || 0}</p>
-              <p>Nodes: {JSON.stringify(visualization.data?.nodes)}</p>
-              <p>Edges: {JSON.stringify(visualization.data?.edges)}</p>
-            </>
-          )}
-        </div>
+        {showDebugInfo && (
+          <div className="debug-info" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px' }}>
+            <h4>Debug Information</h4>
+            <p>Current step: {currentStep}</p>
+            <p>Active tab: {activeTab}</p>
+            <p>Module ID: {module.id}</p>
+            <p>Step title: {currentStepData.title}</p>
+            <p>Behind the Command available: {currentStepData.behindTheCommand ? 'Yes' : 'No'}</p>
+            <p>Visualization data available: {visualization ? 'Yes' : 'No'}</p>
+            {visualization && (
+              <>
+                <p>Visualization type: {visualization.type}</p>
+                <p>Data nodes: {visualization.data?.nodes?.length || 0}</p>
+                <p>Data edges: {visualization.data?.edges?.length || 0}</p>
+                <p>Nodes: {JSON.stringify(visualization.data?.nodes)}</p>
+                <p>Edges: {JSON.stringify(visualization.data?.edges)}</p>
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -155,6 +159,10 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
     case 'file-view':
       return renderFileViewTab();
     case 'behind-command':
+      // If the current step doesn't have behindTheCommand data, default to instructions
+      if (!currentStepData.behindTheCommand) {
+        return renderInstructionsTab();
+      }
       return renderBehindCommandTab();
     default:
       return <div>Select a tab to view content</div>;

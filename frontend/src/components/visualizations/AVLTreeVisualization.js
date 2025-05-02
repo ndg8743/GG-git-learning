@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 /**
  * A specialized component for visualizing AVL trees
  * This provides an interactive representation of how AVL trees work with balancing
+ * Includes zoom and pan functionality for better interaction
  */
 const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
   const [tree, setTree] = useState(null);
@@ -189,9 +191,16 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
     const value = parseInt(inputValue);
     
     if (tree) {
-      tree.insert(value);
-      tree.calculatePositions();
-      setTree({ ...tree }); // Force re-render
+      // Create a new tree instance to properly trigger React's state update
+      const newTree = new AVLTree();
+      // Copy the existing root if it exists
+      if (tree.root) {
+        newTree.root = tree.root;
+      }
+      // Insert the new value
+      newTree.insert(value);
+      newTree.calculatePositions();
+      setTree(newTree); // Set the new tree instance
       setInputValue('');
       setMessage(`Inserted ${value} into the AVL tree`);
       
@@ -216,14 +225,16 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
     if (tree) {
       const sampleValues = [10, 5, 15, 3, 7, 12, 17, 1, 4, 6, 8, 11, 13, 16, 20];
       
-      // Reset tree first
+      // Create a new tree
       const newTree = new AVLTree();
       
       // Insert values one by one
       sampleValues.forEach(value => {
-        newTree.insert(value);
+        // Insert each value using the tree's internal insert method
+        newTree.root = newTree._insert(newTree.root, value);
       });
       
+      // Calculate positions for visualization
       newTree.calculatePositions();
       setTree(newTree);
       setMessage('Sample data added');
@@ -244,7 +255,7 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
       
       // Add node
       nodes.push(
-        <g key={`node-${node.key}`} transform={`translate(${node.x}, ${node.y})`}>
+        <g key={`node-${node.key}`} transform={`translate(${node.x}, ${node.y})`} className="avl-node">
           <circle 
             r="25" 
             fill={Math.abs(node.balanceFactor) > 1 ? 'var(--danger-color)' : 'var(--success-color)'} 
@@ -284,6 +295,7 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
             y2={node.left.y} 
             stroke="var(--secondary-color)" 
             strokeWidth="2"
+            className="avl-edge"
           />
         );
         traverseTree(node.left);
@@ -299,6 +311,7 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
             y2={node.right.y} 
             stroke="var(--secondary-color)" 
             strokeWidth="2"
+            className="avl-edge"
           />
         );
         traverseTree(node.right);
@@ -307,10 +320,49 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
     
     traverseTree(tree.root);
     
+    // Calculate SVG dimensions based on tree size
+    let maxWidth = width;
+    let maxHeight = height;
+    
+    // Make sure we have enough space for all nodes
+    if (tree.root) {
+      const calculateDimensions = (node, maxX = 0, maxY = 0) => {
+        if (!node) return { maxX, maxY };
+        maxX = Math.max(maxX, node.x + 100);
+        maxY = Math.max(maxY, node.y + 100);
+        
+        if (node.left) {
+          const leftDims = calculateDimensions(node.left, maxX, maxY);
+          maxX = Math.max(maxX, leftDims.maxX);
+          maxY = Math.max(maxY, leftDims.maxY);
+        }
+        
+        if (node.right) {
+          const rightDims = calculateDimensions(node.right, maxX, maxY);
+          maxX = Math.max(maxX, rightDims.maxX);
+          maxY = Math.max(maxY, rightDims.maxY);
+        }
+        
+        return { maxX, maxY };
+      };
+      
+      const { maxX, maxY } = calculateDimensions(tree.root);
+      maxWidth = Math.max(width, maxX);
+      maxHeight = Math.max(height, maxY);
+    }
+    
     return (
-      <svg ref={svgRef} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        {edges}
-        {nodes}
+      <svg 
+        ref={svgRef} 
+        width={maxWidth} 
+        height={maxHeight} 
+        viewBox={`0 0 ${maxWidth} ${maxHeight}`}
+        style={{ overflow: 'visible' }} // Allow content outside SVG bounds
+      >
+        <g className="svg-content">
+          {edges}
+          {nodes}
+        </g>
       </svg>
     );
   };
@@ -429,13 +481,109 @@ const AVLTreeVisualization = ({ data, width = 900, height = 600 }) => {
       <div style={{ 
         border: '1px solid var(--border-color)', 
         borderRadius: '4px', 
-        overflow: 'auto',
+        overflow: 'hidden', // Changed to hidden to avoid double scrollbars
         marginBottom: '20px',
         backgroundColor: 'var(--card-bg)',
         minHeight: '400px',
-        boxShadow: '0 2px 5px var(--shadow-color)'
+        boxShadow: '0 2px 5px var(--shadow-color)',
+        position: 'relative' // Added for positioning zoom controls
       }}>
-        {renderTree()}
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          zIndex: 5,
+          padding: '5px 10px',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          borderRadius: '4px',
+          fontSize: '12px'
+        }}>
+          <span>🖱️ Click and drag to move, scroll to zoom</span>
+        </div>
+        <TransformWrapper
+          initialScale={1}
+          minScale={0.3}
+          maxScale={3}
+          centerOnInit={true}
+          wheel={{ step: 0.1 }}
+          panning={{ activationKeys: [] }} // Remove Space key requirement, allow direct panning
+          doubleClick={{ disabled: false, mode: 'reset' }}
+        >
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <>
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                zIndex: 10,
+                display: 'flex',
+                gap: '5px'
+              }} className="zoom-controls">
+                <button 
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '4px',
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '18px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title="Zoom In"
+                  onClick={() => zoomIn()}
+                >
+                  +
+                </button>
+                <button 
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '4px',
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '18px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title="Zoom Out"
+                  onClick={() => zoomOut()}
+                >
+                  -
+                </button>
+                <button 
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '4px',
+                    backgroundColor: 'var(--secondary-color)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title="Reset View"
+                  onClick={() => resetTransform()}
+                >
+                  ↺
+                </button>
+              </div>
+              <TransformComponent wrapperStyle={{ width: '100%', height: '400px' }}>
+                {renderTree()}
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
       </div>
       
       {renderRotationInfo()}

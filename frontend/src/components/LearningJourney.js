@@ -52,10 +52,10 @@ const LearningJourney = ({ modules, connections }) => {
         borderColor = '#fd7e14'; // orange for collaboration
       }
 
-      // Adjust positions to have more spacing
+      // Adjust positions to have moderate spacing
       const adjustedPosition = {
-        x: module.position.x * 2.0, // Increase horizontal spacing by 100%
-        y: module.position.y * 1.8  // Increase vertical spacing by 80%
+        x: module.position.x * 2.5, // Reduce horizontal spacing multiplier from 3.5 to 2.5
+        y: module.position.y * 2.0  // Reduce vertical spacing multiplier from 3.0 to 2.0
       };
 
       return {
@@ -73,10 +73,10 @@ const LearningJourney = ({ modules, connections }) => {
         },
         style: {
           background: '#ffffff',
-          border: `2px solid ${borderColor}`,
+          border: `5px solid ${borderColor}`, // Increased border thickness from 2px to 4px
           borderRadius: '8px',
           padding: '10px',
-          width: 200, // Slightly wider nodes
+          width: 220, // Wider nodes for better readability
         },
       };
     });
@@ -140,10 +140,10 @@ const LearningJourney = ({ modules, connections }) => {
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.3}
+        fitViewOptions={{ padding: 0.2 }}  // Reduce padding from 0.3 to 0.2
+        minZoom={0.4}                      // Increase minimum zoom from 0.3 to 0.4
         maxZoom={1.5}
-        defaultViewport={{ zoom: 0.6 }}
+        defaultViewport={{ zoom: 0.8 }}    // Increase default zoom from 0.6 to 0.8
         attributionPosition="bottom-right"
         nodesDraggable={true}
       >

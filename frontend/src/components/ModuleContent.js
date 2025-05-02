@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../config';
@@ -18,6 +18,7 @@ const ModuleContent = () => {
   const [commandHistory, setCommandHistory] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [fileStructure, setFileStructure] = useState({});
+  const [showDebugInfo, setShowDebugInfo] = useState(true);
 
   useEffect(() => {
     const fetchModule = async () => {
@@ -164,50 +165,77 @@ const ModuleContent = () => {
 
   return (
     <div className="module-content">
-      <button className="back-button" onClick={handleBackToJourney}>
+      <button 
+        className="btn btn-secondary flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 ease-in-out transform hover:-translate-y-1"
+        onClick={handleBackToJourney}
+        style={{ marginBottom: '1rem' }}
+      >
         &larr; Back to Learning Journey
       </button>
       
-      <h2>{module.title}</h2>
-      <p className="module-description">{module.description}</p>
+      <div className="module-header">
+        <div>
+          <h2>{module.title}</h2>
+          <p className="module-description">{module.description}</p>
+        </div>
+        <div className="debug-toggle">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showDebugInfo} 
+              onChange={() => setShowDebugInfo(!showDebugInfo)} 
+            />
+            Show Visualization Data and Debug Information
+          </label>
+        </div>
+      </div>
       
       <div className="content-container">
         <FileStructure fileStructure={fileStructure} />
         
         <div className="guidance-interface">
-          <div className="tabs">
-            <div 
-              className={`tab ${activeTab === 'instructions' ? 'active' : ''}`}
-              onClick={() => setActiveTab('instructions')}
-            >
-              Instructions
+          <div className="tabs-container bg-white dark:bg-gray-800 shadow-md rounded-md overflow-hidden mb-6">
+            <div className="tabs flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+              <div 
+                className={`tab px-6 py-3 cursor-pointer ${activeTab === 'instructions' ? 'font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                onClick={() => setActiveTab('instructions')}
+              >
+                Instructions
+              </div>
+              <div 
+                className={`tab px-6 py-3 cursor-pointer ${activeTab === 'file-view' ? 'font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                onClick={() => setActiveTab('file-view')}
+              >
+                File View
+              </div>
+              {module.content.steps[currentStep].behindTheCommand && (
+                <div 
+                  className={`tab px-6 py-3 cursor-pointer ${activeTab === 'behind-command' ? 'font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  onClick={() => setActiveTab('behind-command')}
+                >
+                  Behind the Command
+                </div>
+              )}
             </div>
-            <div 
-              className={`tab ${activeTab === 'file-view' ? 'active' : ''}`}
-              onClick={() => setActiveTab('file-view')}
-            >
-              File View
-            </div>
-            <div 
-              className={`tab ${activeTab === 'behind-command' ? 'active' : ''}`}
-              onClick={() => setActiveTab('behind-command')}
-            >
-              Behind the Command
+            <div className="p-4 bg-white dark:bg-gray-800">
+              <TabContent 
+                activeTab={activeTab} 
+                currentStep={currentStep} 
+                module={module} 
+                fileStructure={fileStructure}
+                showDebugInfo={showDebugInfo}
+              />
             </div>
           </div>
-          
-          <TabContent 
-            activeTab={activeTab} 
-            currentStep={currentStep} 
-            module={module} 
-            fileStructure={fileStructure}
-          />
           
           {/* Add Next Step button if current step has no commands */}
           {(!module.content.steps[currentStep].commands || module.content.steps[currentStep].commands.length === 0) && 
             currentStep < module.content.steps.length - 1 && (
             <div className="next-step-container">
-              <button className="next-step-button" onClick={handleNextStep}>
+              <button 
+                className="next-step-button flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out transform hover:-translate-y-1"
+                onClick={handleNextStep}
+              >
                 Next Step: {module.content.steps[currentStep + 1].title} &rarr;
               </button>
             </div>
