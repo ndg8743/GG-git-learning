@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
  * A specialized component for visualizing Trie data structures
  * This provides an interactive representation of how Tries work for path storage in Git
  */
-const TrieVisualization = ({ data, width = 800, height = 500 }) => {
+const TrieVisualization = ({ data, width = 900, height = 600 }) => {
   const [trie, setTrie] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -245,26 +245,26 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
     // Helper function to traverse the trie
     const traverseTrie = (node, parentX = null, parentY = null) => {
       // Determine node color
-      let nodeColor = '#0366d6'; // default blue
+      let nodeColor = 'var(--primary-color)'; // default blue
       
       if (node.value === 'root') {
-        nodeColor = '#28a745'; // green for root
+        nodeColor = 'var(--success-color)'; // green for root
       } else if (node.isEnd) {
-        nodeColor = '#dc3545'; // red for end of path
+        nodeColor = 'var(--danger-color)'; // red for end of path
       }
       
       // Highlight node if it's in the search path
       if (highlightedPath.includes(node.id)) {
-        nodeColor = '#fd7e14'; // orange for highlighted nodes
+        nodeColor = 'var(--warning-color)'; // orange for highlighted nodes
       }
       
       // Add node
       nodes.push(
         <g key={`node-${node.id}`} transform={`translate(${node.x}, ${node.y})`}>
           <circle 
-            r="20" 
+            r="25" 
             fill={nodeColor} 
-            stroke="#333" 
+            stroke="var(--border-color)" 
             strokeWidth="2"
           />
           <text 
@@ -272,17 +272,17 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
             dominantBaseline="middle" 
             fill="white" 
             fontWeight="bold"
-            fontSize="12"
+            fontSize="14"
           >
             {node.value === 'root' ? 'Root' : node.value}
           </text>
           {node.isEnd && (
             <circle 
-              r="5" 
-              cx="15" 
-              cy="-15" 
-              fill="#dc3545" 
-              stroke="#333" 
+              r="7" 
+              cx="18" 
+              cy="-18" 
+              fill="var(--danger-color)" 
+              stroke="var(--border-color)" 
               strokeWidth="1"
             />
           )}
@@ -298,7 +298,7 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
             y1={parentY} 
             x2={node.x} 
             y2={node.y} 
-            stroke={highlightedPath.includes(node.id) ? '#fd7e14' : '#666'} 
+            stroke={highlightedPath.includes(node.id) ? 'var(--warning-color)' : 'var(--secondary-color)'} 
             strokeWidth={highlightedPath.includes(node.id) ? 3 : 2}
           />
         );
@@ -338,17 +338,19 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
           padding: '0', 
           maxHeight: '150px', 
           overflowY: 'auto',
-          border: '1px solid #ddd',
+          border: `1px solid var(--border-color)`,
           borderRadius: '4px',
-          padding: '10px'
+          padding: '10px',
+          backgroundColor: 'var(--card-bg)',
+          color: 'var(--text-color)'
         }}>
           {paths.map((path, index) => (
             <li 
               key={index}
               style={{ 
                 padding: '5px 10px',
-                borderBottom: index < paths.length - 1 ? '1px solid #eee' : 'none',
-                color: searchResult && searchResult.found && `/${path}` === (searchValue.startsWith('/') ? searchValue : `/${searchValue}`) ? '#28a745' : '#333'
+                borderBottom: index < paths.length - 1 ? `1px solid var(--border-color)` : 'none',
+                color: searchResult && searchResult.found && `/${path}` === (searchValue.startsWith('/') ? searchValue : `/${searchValue}`) ? 'var(--success-color)' : 'var(--text-color)'
               }}
             >
               /{path}
@@ -361,11 +363,13 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
 
   return (
     <div style={{ 
-      border: '1px solid #ddd', 
+      border: `1px solid var(--border-color)`, 
       borderRadius: '5px', 
       padding: '20px',
       maxWidth: width,
-      margin: '0 auto'
+      margin: '0 auto',
+      backgroundColor: 'var(--card-bg)',
+      color: 'var(--text-color)'
     }}>
       <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Interactive Trie for Path Storage</h3>
       
@@ -379,14 +383,16 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
             flex: 1, 
             padding: '8px 12px', 
             borderRadius: '4px', 
-            border: '1px solid #ccc' 
+            border: `1px solid var(--border-color)`,
+            backgroundColor: 'var(--card-bg)',
+            color: 'var(--text-color)'
           }}
         />
         <button 
           onClick={insertPath}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#28a745', 
+            backgroundColor: 'var(--success-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -407,14 +413,16 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
             flex: 1, 
             padding: '8px 12px', 
             borderRadius: '4px', 
-            border: '1px solid #ccc' 
+            border: `1px solid var(--border-color)`,
+            backgroundColor: 'var(--card-bg)',
+            color: 'var(--text-color)'
           }}
         />
         <button 
           onClick={searchPath}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#0366d6', 
+            backgroundColor: 'var(--primary-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -430,7 +438,7 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
           onClick={resetTrie}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#6c757d', 
+            backgroundColor: 'var(--secondary-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -443,7 +451,7 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
           onClick={addSampleData}
           style={{ 
             padding: '8px 16px', 
-            backgroundColor: '#17a2b8', 
+            backgroundColor: 'var(--primary-color)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px',
@@ -458,29 +466,31 @@ const TrieVisualization = ({ data, width = 800, height = 500 }) => {
         <div style={{ 
           marginBottom: '20px', 
           padding: '10px', 
-          backgroundColor: searchResult && !searchResult.found ? '#f8d7da' : '#d4edda', 
-          border: `1px solid ${searchResult && !searchResult.found ? '#f5c6cb' : '#c3e6cb'}`, 
+          backgroundColor: searchResult && !searchResult.found ? 'var(--danger-color)' : 'var(--success-color)', 
+          opacity: 0.2,
+          border: `1px solid ${searchResult && !searchResult.found ? 'var(--danger-color)' : 'var(--success-color)'}`, 
           borderRadius: '4px',
-          color: searchResult && !searchResult.found ? '#721c24' : '#155724'
+          color: 'var(--text-color)'
         }}>
           {message}
         </div>
       )}
       
       <div style={{ 
-        border: '1px solid #ddd', 
+        border: `1px solid var(--border-color)`, 
         borderRadius: '4px', 
         overflow: 'auto',
         marginBottom: '20px',
-        backgroundColor: '#f8f9fa',
-        height: '300px'
+        backgroundColor: 'var(--card-bg)',
+        height: '400px',
+        boxShadow: '0 2px 5px var(--shadow-color)'
       }}>
         {renderTrie()}
       </div>
       
       {renderPathList()}
       
-      <div style={{ marginTop: '30px', fontSize: '14px', color: '#666' }}>
+      <div style={{ marginTop: '30px', fontSize: '14px', color: 'var(--text-color)' }}>
         <h4>How Tries Work in Git:</h4>
         <p>
           A Trie (pronounced "try") is a tree-like data structure used for storing a dynamic set of strings.

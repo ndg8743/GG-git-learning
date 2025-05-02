@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "54321:54321"
+      - "38765:38765"
     environment:
       - NODE_ENV=production
-      - PORT=54321
+      - PORT=38765
     restart: unless-stopped
     volumes:
       # Mount these directories as volumes for development
@@ -17,7 +17,7 @@ services:
       - ./backend/src:/app/backend/src
       - ./frontend/src:/app/frontend/src
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:54321/api/modules"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:38765/api/modules"]
       interval: 30s
       timeout: 10s
       retries: 3
