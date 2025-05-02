@@ -8,10 +8,13 @@ const fs = require('fs');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 54321; // Random high port number
+const PORT = process.env.PORT || 38765; // Random high port number
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow requests from the frontend
+  credentials: true
+}));
 app.use(express.json());
 
 // API Routes

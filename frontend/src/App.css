@@ -5,11 +5,48 @@
   padding: 0;
 }
 
+:root {
+  --bg-color: #f8f9fa;
+  --text-color: #333;
+  --header-bg: #24292e;
+  --header-text: #fff;
+  --card-bg: #fff;
+  --border-color: #ddd;
+  --primary-color: #0366d6;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --warning-color: #fd7e14;
+  --danger-color: #dc3545;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --terminal-bg: #1e1e1e;
+  --terminal-text: #f1f1f1;
+  --timeline-bg: #f1f1f1;
+}
+
+body.dark-mode {
+  --bg-color: #1a1a1a;
+  --text-color: #f1f1f1;
+  --header-bg: #0d1117;
+  --header-text: #f1f1f1;
+  --card-bg: #2d333b;
+  --border-color: #444;
+  --primary-color: #58a6ff;
+  --secondary-color: #8b949e;
+  --success-color: #3fb950;
+  --warning-color: #f0883e;
+  --danger-color: #f85149;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --terminal-bg: #0d1117;
+  --terminal-text: #f1f1f1;
+  --timeline-bg: #2d333b;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .App {
@@ -20,11 +57,19 @@ body {
 
 /* Header Styles */
 .App-header {
-  background-color: #24292e;
-  color: white;
+  background-color: var(--header-bg);
+  color: var(--header-text);
   padding: 1rem 2rem;
-  text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .App-header h1 {
@@ -42,8 +87,8 @@ main {
 
 /* Footer Styles */
 footer {
-  background-color: #24292e;
-  color: white;
+  background-color: var(--header-bg);
+  color: var(--header-text);
   text-align: center;
   padding: 1rem;
   margin-top: auto;
@@ -56,20 +101,54 @@ footer {
   align-items: center;
   height: 50vh;
   font-size: 1.5rem;
-  color: #555;
+  color: var(--secondary-color);
 }
 
 .error {
-  color: #d73a49;
+  color: var(--danger-color);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background-color: transparent;
+  border: 2px solid var(--header-text);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  outline: none;
+  color: var(--header-text);
+  position: relative;
+  z-index: 100;
+}
+
+.theme-toggle:hover {
+  transform: rotate(30deg);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle.dark {
+  border-color: var(--warning-color);
+  color: var(--warning-color);
+}
+
+.theme-toggle.light {
+  border-color: var(--header-text);
+  color: var(--header-text);
 }
 
 /* Learning Journey Graph */
 .learning-journey {
   width: 100%;
   height: 70vh;
-  background-color: #fff;
+  background-color: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-color);
   overflow: hidden;
   position: relative;
 }
@@ -79,15 +158,16 @@ footer {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--card-bg);
   border-radius: 4px;
   padding: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px var(--shadow-color);
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   z-index: 5;
   font-size: 0.8rem;
+  color: var(--text-color);
 }
 
 .legend-item {
@@ -115,21 +195,22 @@ footer {
 /* Visualization Styles */
 .visualization {
   margin-top: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 .visualization-title {
   font-size: 1rem;
-  color: #0366d6;
+  color: var(--primary-color);
   margin-bottom: 10px;
 }
 
 .visualization-description {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--secondary-color);
   margin-bottom: 15px;
   font-style: italic;
 }
@@ -141,8 +222,8 @@ footer {
 /* Timeline Bar */
 .timeline-bar {
   height: 100px;
-  background-color: #f1f1f1;
-  border-top: 1px solid #ddd;
+  background-color: var(--timeline-bg);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   padding: 0 1rem;
@@ -150,7 +231,7 @@ footer {
   margin-top: 1rem;
   position: relative;
   z-index: 10;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 5px var(--shadow-color);
 }
 
 .timeline-label {
@@ -169,8 +250,8 @@ footer {
 }
 
 .timeline-step {
-  background-color: #fff;
-  border: 2px solid #0366d6;
+  background-color: var(--card-bg);
+  border: 2px solid var(--primary-color);
   border-radius: 6px;
   padding: 0.6rem;
   margin-right: 1rem;
@@ -181,25 +262,26 @@ footer {
   flex-direction: column;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
   position: relative;
+  color: var(--text-color);
 }
 
 .timeline-step.active {
-  background-color: #0366d6;
+  background-color: var(--primary-color);
   color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .timeline-step.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: #ccc;
+  border-color: var(--border-color);
 }
 
 .timeline-step:not(.disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .timeline-step:hover::after {
@@ -244,8 +326,8 @@ footer {
 
 /* Terminal Emulation */
 .terminal {
-  background-color: #1e1e1e;
-  color: #f1f1f1;
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
   font-family: 'Courier New', Courier, monospace;
   padding: 1rem;
   height: 200px;
@@ -256,20 +338,20 @@ footer {
 
 .terminal-input {
   display: flex;
-  background-color: #1e1e1e;
+  background-color: var(--terminal-bg);
   padding: 0.5rem 1rem;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--border-color);
 }
 
 .terminal-prompt {
-  color: #0f0;
+  color: var(--success-color);
   margin-right: 0.5rem;
 }
 
 .terminal-command {
   background-color: transparent;
   border: none;
-  color: #f1f1f1;
+  color: var(--terminal-text);
   font-family: 'Courier New', Courier, monospace;
   flex: 1;
   outline: none;
@@ -284,10 +366,11 @@ footer {
 
 .file-structure {
   width: 250px;
-  background-color: #f8f9fa;
-  border-right: 1px solid #ddd;
+  background-color: var(--card-bg);
+  border-right: 1px solid var(--border-color);
   padding: 1rem;
   overflow-y: auto;
+  color: var(--text-color);
 }
 
 .guidance-interface {
@@ -298,7 +381,7 @@ footer {
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 1rem;
 }
 
@@ -306,17 +389,18 @@ footer {
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  color: var(--text-color);
 }
 
 .tab.active {
-  border-bottom: 2px solid #0366d6;
-  color: #0366d6;
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
 /* Module Node Styles */
 .module-node {
-  background-color: white;
-  border: 2px solid #0366d6;
+  background-color: var(--card-bg);
+  border: 2px solid var(--primary-color);
   border-radius: 8px;
   padding: 1rem;
   width: 180px;
@@ -328,12 +412,13 @@ footer {
   cursor: pointer;
   transition: all 0.2s ease;
   position: absolute;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px var(--shadow-color);
+  color: var(--text-color);
 }
 
 .module-node:hover {
   transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px var(--shadow-color);
 }
 
 .module-node h3 {
@@ -345,7 +430,7 @@ footer {
 .module-node p {
   font-size: 0.8rem;
   text-align: center;
-  color: #666;
+  color: var(--secondary-color);
 }
 
 /* Next Step Button */
@@ -355,7 +440,7 @@ footer {
 }
 
 .next-step-button {
-  background-color: #0366d6;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -366,7 +451,9 @@ footer {
 }
 
 .next-step-button:hover {
-  background-color: #0256b9;
+  background-color: var(--primary-color);
+  opacity: 0.9;
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 /* Responsive Styles */
@@ -378,7 +465,7 @@ footer {
   .file-structure {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
     max-height: 200px;
   }
 }

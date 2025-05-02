@@ -21,7 +21,7 @@ COPY . .
 RUN cd frontend && npm run build
 
 # Expose the port the app runs on
-EXPOSE 54321
+EXPOSE 38765
 
 # Command to run the application
 CMD ["node", "backend/server.js"]

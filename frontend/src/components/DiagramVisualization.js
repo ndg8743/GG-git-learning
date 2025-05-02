@@ -307,7 +307,21 @@ const DiagramVisualization = ({ data }) => {
   };
   
   return (
-    <div className="custom-diagram" style={{ border: '1px solid #ddd', borderRadius: '5px', overflow: 'auto', padding: '10px' }}>
+    <div 
+      className="custom-diagram" 
+      style={{ 
+        border: '1px solid #ddd', 
+        borderRadius: '5px', 
+        overflow: 'auto', 
+        padding: '10px',
+        cursor: 'move' // Add cursor style to indicate draggability
+      }}
+      draggable="true" // Make the diagram draggable
+      onDragStart={(e) => {
+        // Store the diagram's ID or other data if needed
+        e.dataTransfer.setData('text/plain', 'diagram');
+      }}
+    >
       {renderVisualization()}
       {renderDebugInfo()}
     </div>

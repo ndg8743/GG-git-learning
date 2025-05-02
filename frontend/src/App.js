@@ -5,6 +5,7 @@ import './App.css';
 import config from './config';
 import LearningJourney from './components/LearningJourney';
 import ModuleContent from './components/ModuleContent';
+import ThemeToggle from './components/ThemeToggle';
 
 function App() {
   const [modules, setModules] = useState([]);
@@ -41,7 +42,10 @@ function App() {
     <Router>
       <div className="App">
         <header className="App-header">
-          <h1>Git Learning Journey</h1>
+          <div className="header-content">
+            <h1>Git Learning Journey</h1>
+            <ThemeToggle />
+          </div>
         </header>
         <main>
           <Routes>

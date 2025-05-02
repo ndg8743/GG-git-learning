@@ -52,15 +52,58 @@ This will install dependencies for the root project, backend, and frontend.
 
 ### Running the Application
 
-To run both the backend and frontend concurrently:
+#### Development Mode
+
+To run both the backend and frontend concurrently in development mode:
 
 ```bash
 npm run dev
 ```
 
 This will start:
-- Backend server on http://localhost:5000
-- Frontend development server on http://localhost:3000
+- Backend server on http://localhost:38765
+- Frontend development server on http://localhost:38765
+
+#### Production Mode
+
+To run the application in production mode:
+
+```bash
+npm run build
+npm start
+```
+
+This will build the frontend and start the backend server which serves the frontend at http://localhost:38765
+
+#### Using Docker
+
+The application can also be run using Docker:
+
+1. Build the Docker image:
+
+```bash
+npm run docker:build
+```
+
+2. Start the Docker container:
+
+```bash
+npm run docker:up
+```
+
+3. Access the application at http://localhost:38765
+
+4. View logs:
+
+```bash
+npm run docker:logs
+```
+
+5. Stop the Docker container:
+
+```bash
+npm run docker:down
+```
 
 ## Adding New Modules
 
