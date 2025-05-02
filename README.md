@@ -1,5 +1,7 @@
 # Git Learning Journey
 
+Currently Hosted Here: https://hydra.newpaltz.edu/git
+
 A modular Git learning platform with interactive modules that teach Git concepts through practical examples.
 
 ## Project Overview
