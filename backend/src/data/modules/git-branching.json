@@ -1,0 +1,130 @@
+{
+  "id": "git-branching",
+  "title": "Git Branching",
+  "description": "Learn how to create and manage branches in Git",
+  "content": {
+    "overview": "Branches in Git allow you to diverge from the main line of development and work on features or fixes independently. In this module, you'll learn how to create, switch between, and manage branches in Git.",
+    "steps": [
+      {
+        "title": "What are Branches?",
+        "content": "Branches in Git are lightweight movable pointers to commits. They allow you to work on different features or fixes in isolation without affecting the main codebase. The default branch in Git is called 'master' or 'main'.",
+        "visualizations": {
+          "type": "image",
+          "url": "git-branches.png"
+        }
+      },
+      {
+        "title": "Viewing Branches",
+        "content": "You can view all branches in your repository using the `git branch` command. The current branch is marked with an asterisk (*).",
+        "commands": [
+          {
+            "command": "git branch",
+            "description": "List all local branches",
+            "expectedOutput": "* main"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Tracks Branches",
+          "content": "Git stores branch information in the `.git/refs/heads/` directory. Each branch is a file containing the commit hash that the branch points to. When you run `git branch`, Git reads these files to display the branch names.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "refs", "label": ".git/refs/" },
+                { "id": "heads", "label": "heads/" },
+                { "id": "main", "label": "main" },
+                { "id": "feature", "label": "feature" }
+              ],
+              "edges": [
+                { "from": "refs", "to": "heads" },
+                { "from": "heads", "to": "main" },
+                { "from": "heads", "to": "feature" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Creating a New Branch",
+        "content": "You can create a new branch using the `git branch` command followed by the branch name. This creates a new pointer to the current commit but doesn't switch to the new branch.",
+        "commands": [
+          {
+            "command": "git branch feature",
+            "description": "Create a new branch named 'feature'",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git branch",
+            "description": "List all local branches",
+            "expectedOutput": "  feature\n* main"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": ".git/refs/heads/feature",
+            "description": "Git creates a new file for the branch in the .git/refs/heads/ directory"
+          }
+        ]
+      },
+      {
+        "title": "Switching Branches",
+        "content": "To switch to a different branch, use the `git checkout` command followed by the branch name. This updates your working directory to match the state of the branch.",
+        "commands": [
+          {
+            "command": "git checkout feature",
+            "description": "Switch to the 'feature' branch",
+            "expectedOutput": "Switched to branch 'feature'"
+          },
+          {
+            "command": "git branch",
+            "description": "List all local branches",
+            "expectedOutput": "* feature\n  main"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During Checkout",
+          "content": "When you run `git checkout`, Git performs several operations:\n\n1. Updates the HEAD pointer to point to the specified branch\n2. Updates the index (staging area) to match the target branch\n3. Updates the working directory to match the target branch\n\nThis means files in your working directory may change, be added, or be removed to match the state of the branch you're switching to.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "head", "label": "HEAD" },
+                { "id": "main", "label": "main" },
+                { "id": "feature", "label": "feature" },
+                { "id": "commit1", "label": "Commit A" },
+                { "id": "commit2", "label": "Commit B" }
+              ],
+              "edges": [
+                { "from": "head", "to": "feature", "label": "points to" },
+                { "from": "feature", "to": "commit2", "label": "points to" },
+                { "from": "main", "to": "commit1", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Creating and Switching in One Command",
+        "content": "You can create a new branch and switch to it in one command using `git checkout -b`.",
+        "commands": [
+          {
+            "command": "git checkout main",
+            "description": "Switch back to the main branch",
+            "expectedOutput": "Switched to branch 'main'"
+          },
+          {
+            "command": "git checkout -b new-feature",
+            "description": "Create and switch to a new branch named 'new-feature'",
+            "expectedOutput": "Switched to a new branch 'new-feature'"
+          },
+          {
+            "command": "git branch",
+            "description": "List all local branches",
+            "expectedOutput": "  feature\n  main\n* new-feature"
+          }
+        ]
+      }
+    ]
+  }
+}

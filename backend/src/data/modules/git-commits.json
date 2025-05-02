@@ -1,0 +1,165 @@
+{
+  "id": "git-commits",
+  "title": "Git Commits",
+  "description": "Learn how to make and manage commits in Git",
+  "content": {
+    "overview": "Commits are the fundamental building blocks in Git. They represent a snapshot of your project at a specific point in time. In this module, you'll learn how to create, view, and manage commits in Git.",
+    "steps": [
+      {
+        "title": "What is a Commit?",
+        "content": "A commit in Git is a snapshot of your project at a specific point in time. It includes all the changes you've made to your files since the last commit. Each commit has a unique identifier (hash) and contains metadata such as the author, date, and a message describing the changes.",
+        "visualizations": {
+          "type": "image",
+          "url": "git-commits.png"
+        }
+      },
+      {
+        "title": "The Staging Area",
+        "content": "Before you can commit changes in Git, you need to add them to the staging area (also called the index). This is an intermediate area where you can select which changes you want to include in your next commit.",
+        "commands": [
+          {
+            "command": "echo 'Hello, Git!' > hello.txt",
+            "description": "Create a new file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your repository",
+            "expectedOutput": "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\thello.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Tracks Files",
+          "content": "Git classifies files into three states:\n\n1. **Untracked**: Files that Git doesn't know about yet\n2. **Tracked, Modified**: Files that Git knows about but have been changed since the last commit\n3. **Tracked, Staged**: Files that are ready to be committed\n\nThe `git status` command shows you which files are in which state.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "untracked", "label": "Untracked" },
+                { "id": "modified", "label": "Modified" },
+                { "id": "staged", "label": "Staged" },
+                { "id": "committed", "label": "Committed" }
+              ],
+              "edges": [
+                { "from": "untracked", "to": "staged", "label": "git add" },
+                { "from": "modified", "to": "staged", "label": "git add" },
+                { "from": "staged", "to": "committed", "label": "git commit" },
+                { "from": "committed", "to": "modified", "label": "edit files" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Adding Files to the Staging Area",
+        "content": "Use the `git add` command to add files to the staging area. You can add specific files or all changes at once.",
+        "commands": [
+          {
+            "command": "git add hello.txt",
+            "description": "Add hello.txt to the staging area",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your repository",
+            "expectedOutput": "Changes to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n\tnew file:   hello.txt"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "modify",
+            "path": ".git/index",
+            "description": "Git updates the index file to include the new file"
+          }
+        ]
+      },
+      {
+        "title": "Creating a Commit",
+        "content": "Once you've added files to the staging area, you can create a commit using the `git commit` command. Each commit requires a message that describes the changes you've made.",
+        "commands": [
+          {
+            "command": "git commit -m \"Add hello.txt file\"",
+            "description": "Create a commit with the staged changes",
+            "expectedOutput": "[main (root-commit) xxxxxxx] Add hello.txt file\n 1 file changed, 1 insertion(+)\n create mode 100644 hello.txt"
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your repository",
+            "expectedOutput": "On branch main\nnothing to commit, working tree clean"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Commit",
+          "content": "When you create a commit, Git:\n\n1. Takes a snapshot of all staged files\n2. Stores that snapshot as a new commit object in the .git/objects directory\n3. Updates the current branch to point to the new commit\n4. Each commit contains:\n   - A pointer to the previous commit (parent)\n   - A snapshot of the files at that point\n   - Author and committer information\n   - The commit message",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "commit1", "label": "Commit A" },
+                { "id": "commit2", "label": "Commit B" },
+                { "id": "tree1", "label": "Tree A" },
+                { "id": "tree2", "label": "Tree B" },
+                { "id": "blob1", "label": "Blob 1" },
+                { "id": "blob2", "label": "Blob 2" }
+              ],
+              "edges": [
+                { "from": "commit2", "to": "commit1", "label": "parent" },
+                { "from": "commit1", "to": "tree1", "label": "tree" },
+                { "from": "commit2", "to": "tree2", "label": "tree" },
+                { "from": "tree1", "to": "blob1", "label": "hello.txt" },
+                { "from": "tree2", "to": "blob2", "label": "hello.txt" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Viewing Commit History",
+        "content": "You can view the history of commits in your repository using the `git log` command. This shows you all the commits, starting with the most recent.",
+        "commands": [
+          {
+            "command": "git log",
+            "description": "View the commit history",
+            "expectedOutput": "commit xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (HEAD -> main)\nAuthor: Your Name <your.email@example.com>\nDate:   Wed Jan 1 12:00:00 2023 +0000\n\n    Add hello.txt file"
+          },
+          {
+            "command": "git log --oneline",
+            "description": "View a condensed commit history",
+            "expectedOutput": "xxxxxxx (HEAD -> main) Add hello.txt file"
+          }
+        ]
+      },
+      {
+        "title": "Making Changes and Creating More Commits",
+        "content": "Let's make some changes to our file and create another commit.",
+        "commands": [
+          {
+            "command": "echo 'Learning Git is fun!' >> hello.txt",
+            "description": "Add a line to hello.txt",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status of your repository",
+            "expectedOutput": "On branch main\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git restore <file>...\" to discard changes in working directory)\n\tmodified:   hello.txt"
+          },
+          {
+            "command": "git add hello.txt",
+            "description": "Add the changes to the staging area",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git commit -m \"Update hello.txt with a new line\"",
+            "description": "Create a commit with the staged changes",
+            "expectedOutput": "[main xxxxxxx] Update hello.txt with a new line\n 1 file changed, 1 insertion(+)"
+          },
+          {
+            "command": "git log --oneline",
+            "description": "View the commit history",
+            "expectedOutput": "xxxxxxx (HEAD -> main) Update hello.txt with a new line\nxxxxxxx Add hello.txt file"
+          }
+        ]
+      }
+    ]
+  }
+}

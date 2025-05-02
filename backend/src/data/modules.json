@@ -1,0 +1,38 @@
+{
+  "modules": [
+    {
+      "id": "git-intro",
+      "title": "Introduction to Git",
+      "description": "Learn the basics of Git and version control",
+      "position": { "x": 250, "y": 250 },
+      "prerequisites": [],
+      "nextModules": ["git-branching", "git-commits"]
+    },
+    {
+      "id": "git-branching",
+      "title": "Git Branching",
+      "description": "Learn how to create and manage branches in Git",
+      "position": { "x": 450, "y": 200 },
+      "prerequisites": ["git-intro"],
+      "nextModules": []
+    },
+    {
+      "id": "git-commits",
+      "title": "Git Commits",
+      "description": "Learn how to make and manage commits in Git",
+      "position": { "x": 450, "y": 300 },
+      "prerequisites": ["git-intro"],
+      "nextModules": []
+    }
+  ],
+  "connections": [
+    {
+      "source": "git-intro",
+      "target": "git-branching"
+    },
+    {
+      "source": "git-intro",
+      "target": "git-commits"
+    }
+  ]
+}

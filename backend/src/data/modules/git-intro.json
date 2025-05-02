@@ -1,0 +1,100 @@
+{
+  "id": "git-intro",
+  "title": "Introduction to Git",
+  "description": "Learn the basics of Git and version control",
+  "content": {
+    "overview": "Git is a distributed version control system that helps you track changes to your code over time. In this module, you'll learn the basics of Git and how to get started with version control.",
+    "steps": [
+      {
+        "title": "What is Git?",
+        "content": "Git is a distributed version control system that tracks changes to files over time. It allows multiple people to work on the same codebase simultaneously and helps manage different versions of your code.",
+        "visualizations": {
+          "type": "image",
+          "url": "git-overview.png"
+        }
+      },
+      {
+        "title": "Installing Git",
+        "content": "Git comes pre-installed on many systems. You can check if Git is installed by running `git --version` in your terminal. If not installed, you can download it from git-scm.com.",
+        "commands": [
+          {
+            "command": "git --version",
+            "description": "Check the installed Git version",
+            "expectedOutput": "git version 2.x.x"
+          }
+        ]
+      },
+      {
+        "title": "Configuring Git",
+        "content": "Before using Git, you need to configure your identity. This information is used to track who made changes to the code.",
+        "commands": [
+          {
+            "command": "git config --global user.name \"Your Name\"",
+            "description": "Set your name for Git commits",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --global user.email \"your.email@example.com\"",
+            "description": "Set your email for Git commits",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git config --list",
+            "description": "View your Git configuration",
+            "expectedOutput": "user.name=Your Name\nuser.email=your.email@example.com"
+          }
+        ]
+      },
+      {
+        "title": "Initializing a Git Repository",
+        "content": "To start tracking changes to your project with Git, you need to initialize a Git repository in your project directory.",
+        "commands": [
+          {
+            "command": "mkdir my-project",
+            "description": "Create a new project directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cd my-project",
+            "description": "Navigate to the project directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git init",
+            "description": "Initialize a Git repository",
+            "expectedOutput": "Initialized empty Git repository in .git/"
+          }
+        ],
+        "fileChanges": [
+          {
+            "type": "create",
+            "path": ".git/",
+            "description": "Git creates a hidden .git directory to store all the version control information"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What happens when you run git init?",
+          "content": "When you run `git init`, Git creates a hidden `.git` directory in your project folder. This directory contains all the information Git needs to track your project, including:\n\n- Objects database (stores all versions of your files)\n- References to commits\n- Configuration settings\n- Hooks for custom actions\n\nThe .git directory is the heart of Git's operation - without modifying your actual project files, Git can track all changes through this special directory.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "project", "label": "Project Directory" },
+                { "id": "git", "label": ".git Directory" },
+                { "id": "objects", "label": "objects/" },
+                { "id": "refs", "label": "refs/" },
+                { "id": "config", "label": "config" }
+              ],
+              "edges": [
+                { "from": "project", "to": "git" },
+                { "from": "git", "to": "objects" },
+                { "from": "git", "to": "refs" },
+                { "from": "git", "to": "config" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

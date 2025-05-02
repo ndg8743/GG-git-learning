@@ -1,56 +1,99 @@
+# Git Learning Journey
 
-## Module Layout Structure (From Bottom to Top)
+A modular Git learning platform with interactive modules that teach Git concepts through practical examples.
 
-### 1. Timeline Bar (Bottom-most element)
-- Thin timeline stretching full width across the bottom
-- Interactive buttons representing time states/snapshots
-- Each button corresponds to a command entered by the user
-- Undo/redo functionality to navigate between states
-- Visual indicators showing current position in module progression
-- Ability to quickly jump between different points in the learning sequence
+## Project Overview
 
-### 2. Terminal Emulation (Above timeline)
-- Full-width Linux terminal emulator
-- Command history and output display
-- Support for standard shell commands
-- Module-specific command validation
-- Syntax highlighting and auto-completion
+This application provides an interactive learning experience for Git, with a focus on modularity and practical examples. The learning journey is visualized as a graph, where each node represents a module that teaches a specific Git concept.
 
-### 3. Main Content Container (Above terminal)
-- **Left Panel**: File Structure View
-  - Hierarchical directory/file explorer
-  - Syntax highlighting for code files
-  - Visual indicators for modified files
-  
-- **Right Panel**: Tabbed Guidance Interface
-  - **Tab 1**: File View with Diffs
-    - Side-by-side comparison showing changes
-    - Highlighted insertions/deletions
-    - Context for current modifications
-  
-  - **Tab 2**: Module Instructions
-    - Step-by-step guidance
-    - Task objectives and requirements
-    - Hints and tips for completion
-    - Progress indicators
-  
-  - **Tab 3**: "Behind the Command"
-    - Data structure visualizations
-    - Memory models and state diagrams
-    - Detailed explanations of command operations
-    - Algorithmic breakdowns with visuals
+### Key Features
 
-### 4. Node Graph (Top level, initial view)
-- Visual representation of all learning modules
-- Difficulty indicators and prerequisites
-- Progress tracking across the learning path
+- **Interactive Learning Journey Graph**: Visual representation of all learning modules with prerequisites and connections
+- **Modular Content Structure**: Each module focuses on a narrow Git concept
+- **Terminal Emulation**: Practice Git commands directly in the browser
+- **File Structure Visualization**: See how Git commands affect the file structure
+- **Behind the Command Explanations**: Understand what happens under the hood when you run Git commands
+- **Timeline Navigation**: Navigate between different states in the learning sequence
 
-## Interaction Flow
-When a user executes a command in the terminal:
-1. The command is added as a state in the timeline
-2. File structure updates are reflected in the file view
-3. Diffs are generated to show changes
-4. Data structure visualizations update to reflect new state
-5. User can navigate backward/forward using the timeline buttons
+## Project Structure
 
-This design provides a comprehensive environment where users can see not only what commands do (in the terminal output), but also how they affect files (in the diff view) and understand the underlying data structures (in the "Behind the Command" tab).
+The project is divided into two main parts:
+
+### Backend (Node.js)
+
+- Serves module data and content
+- Modular design allows easy addition of new modules
+- Data-driven approach for flexible content management
+
+### Frontend (React)
+
+- Interactive learning journey graph using ReactFlow
+- Terminal emulation for practicing Git commands
+- File structure visualization
+- Tabbed interface for instructions, file view, and behind-the-command explanations
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm run install:all
+```
+
+This will install dependencies for the root project, backend, and frontend.
+
+### Running the Application
+
+To run both the backend and frontend concurrently:
+
+```bash
+npm run dev
+```
+
+This will start:
+- Backend server on http://localhost:5000
+- Frontend development server on http://localhost:3000
+
+## Adding New Modules
+
+The system is designed to be modular and data-driven. To add a new module:
+
+1. Create a new JSON file in `backend/src/data/modules/` following the existing module format
+2. Add the module metadata to `backend/src/data/modules.json`, including:
+   - Module ID
+   - Title
+   - Description
+   - Position in the graph
+   - Prerequisites
+   - Next modules
+3. Add any connections to `backend/src/data/modules.json`
+
+No changes to the React code are needed to add new modules.
+
+## Module Structure
+
+Each module consists of:
+
+- **Metadata**: ID, title, description
+- **Content**: Overview and step-by-step instructions
+- **Commands**: Git commands to practice with expected outputs
+- **File Changes**: How commands affect the file structure
+- **Behind the Command**: Explanations of what happens under the hood
+
+## Current Modules
+
+1. **Introduction to Git**: Learn the basics of Git and version control
+2. **Git Branching**: Learn how to create and manage branches in Git
+3. **Git Commits**: Learn how to make and manage commits in Git
+
+## License
+
+MIT

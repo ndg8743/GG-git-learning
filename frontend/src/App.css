@@ -1,0 +1,290 @@
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.App-header {
+  background-color: #24292e;
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.App-header h1 {
+  font-size: 1.8rem;
+}
+
+/* Main Content Styles */
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Footer Styles */
+footer {
+  background-color: #24292e;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.5rem;
+  color: #555;
+}
+
+.error {
+  color: #d73a49;
+}
+
+/* Learning Journey Graph */
+.learning-journey {
+  width: 100%;
+  height: 70vh;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Module Content */
+.module-content {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}
+
+/* Timeline Bar */
+.timeline-bar {
+  height: 80px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  overflow-x: auto;
+}
+
+.timeline-label {
+  font-weight: bold;
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.timeline-steps {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.timeline-step {
+  background-color: #fff;
+  border: 2px solid #0366d6;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-right: 0.8rem;
+  cursor: pointer;
+  min-width: 100px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-step.active {
+  background-color: #0366d6;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.timeline-step.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #ccc;
+}
+
+.timeline-step:not(.disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.step-number {
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.step-title {
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Terminal Emulation */
+.terminal {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 1rem;
+  height: 200px;
+  overflow-y: auto;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.terminal-input {
+  display: flex;
+  background-color: #1e1e1e;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid #333;
+}
+
+.terminal-prompt {
+  color: #0f0;
+  margin-right: 0.5rem;
+}
+
+.terminal-command {
+  background-color: transparent;
+  border: none;
+  color: #f1f1f1;
+  font-family: 'Courier New', Courier, monospace;
+  flex: 1;
+  outline: none;
+}
+
+/* Main Content Container */
+.content-container {
+  display: flex;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.file-structure {
+  width: 250px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.guidance-interface {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+  border-bottom: 2px solid #0366d6;
+  color: #0366d6;
+}
+
+/* Module Node Styles */
+.module-node {
+  background-color: white;
+  border: 2px solid #0366d6;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 180px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: absolute;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.module-node:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.module-node h3 {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.module-node p {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #666;
+}
+
+/* Next Step Button */
+.next-step-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.next-step-button {
+  background-color: #0366d6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.next-step-button:hover {
+  background-color: #0256b9;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+
+  .file-structure {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    max-height: 200px;
+  }
+}
