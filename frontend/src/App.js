@@ -43,7 +43,7 @@ function App() {
       <div className="App">
         <header className="App-header">
           <div className="header-content">
-            <h1>Git Learning Journey</h1>
+            <h1>Git Learning Journey!</h1>
             <ThemeToggle />
           </div>
         </header>
