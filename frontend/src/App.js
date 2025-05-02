@@ -39,7 +39,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <Router basename="/git">
       <div className="App">
         <header className="App-header">
           <div className="header-content">
