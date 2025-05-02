@@ -1,0 +1,338 @@
+{
+  "id": "git-remote-repos",
+  "title": "Remote Repositories",
+  "description": "Working with GitHub, GitLab, and Bitbucket",
+  "content": {
+    "overview": "Remote repositories allow you to collaborate with others and back up your code. In this module, you'll learn how to work with remote repositories on platforms like GitHub, GitLab, and Bitbucket.",
+    "steps": [
+      {
+        "title": "Understanding Remote Repositories",
+        "content": "A remote repository is a version of your project that is hosted on the internet or network somewhere. Collaborating with others involves managing these remote repositories and pushing and pulling data to and from them.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "type": "generic",
+            "nodes": [
+              { "id": "local", "label": "Local Repository" },
+              { "id": "remote", "label": "Remote Repository" },
+              { "id": "dev1", "label": "Developer 1" },
+              { "id": "dev2", "label": "Developer 2" }
+            ],
+            "edges": [
+              { "from": "dev1", "to": "local", "label": "works on" },
+              { "from": "local", "to": "remote", "label": "push/pull" },
+              { "from": "dev2", "to": "remote", "label": "push/pull" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Viewing Remote Repositories",
+        "content": "You can view the remote repositories associated with your local repository using the `git remote` command.",
+        "commands": [
+          {
+            "command": "git remote",
+            "description": "List remote repositories",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git remote -v",
+            "description": "List remote repositories with URLs",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Tracks Remotes",
+          "content": "Git stores information about remote repositories in the `.git/config` file. Each remote has a name (commonly 'origin') and a URL. When you run `git remote`, Git reads this configuration file to display the remote names. The `-v` flag shows the URLs associated with each remote.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "config", "label": ".git/config" },
+                { "id": "origin", "label": "origin" },
+                { "id": "upstream", "label": "upstream" },
+                { "id": "github", "label": "github.com/user/repo.git" },
+                { "id": "upstream_url", "label": "github.com/original/repo.git" }
+              ],
+              "edges": [
+                { "from": "config", "to": "origin", "label": "defines" },
+                { "from": "config", "to": "upstream", "label": "defines" },
+                { "from": "origin", "to": "github", "label": "URL" },
+                { "from": "upstream", "to": "upstream_url", "label": "URL" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Adding a Remote Repository",
+        "content": "You can add a remote repository using the `git remote add` command followed by the remote name and URL.",
+        "commands": [
+          {
+            "command": "git remote add origin https://github.com/username/repository.git",
+            "description": "Add a remote repository named 'origin'",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git remote -v",
+            "description": "Verify the new remote",
+            "expectedOutput": "origin  https://github.com/username/repository.git (fetch)\norigin  https://github.com/username/repository.git (push)"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens When Adding a Remote",
+          "content": "When you add a remote, Git updates the `.git/config` file with the new remote information. This includes the remote name, URL, and fetch specifications. No connection is made to the remote repository at this point; Git simply records the information for future use.\n\nThe remote name is a shorthand that you'll use in other Git commands to refer to the remote repository. By convention, the primary remote is usually named 'origin', but you can use any name you prefer.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "local", "label": "Local Repository" },
+                { "id": "config", "label": ".git/config" },
+                { "id": "origin", "label": "origin" },
+                { "id": "github", "label": "github.com/username/repository.git" }
+              ],
+              "edges": [
+                { "from": "local", "to": "config", "label": "contains" },
+                { "from": "config", "to": "origin", "label": "defines" },
+                { "from": "origin", "to": "github", "label": "URL" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Fetching from a Remote",
+        "content": "The `git fetch` command downloads objects and refs from a remote repository without merging them into your local branches.",
+        "commands": [
+          {
+            "command": "git fetch origin",
+            "description": "Fetch from the 'origin' remote",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During Fetch",
+          "content": "When you run `git fetch`, Git contacts the remote repository and retrieves all the objects and refs that you don't have yet. This includes new branches, commits, and tags. The objects are stored in your local repository's object database, and the refs are stored in `.git/refs/remotes/[remote-name]/`.\n\nImportantly, `git fetch` doesn't modify your working directory or local branches. It simply downloads the data and updates your remote-tracking branches (e.g., `origin/main`). This makes it a safe operation that won't interfere with your local work.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "local", "label": "Local Repository" },
+                { "id": "remote", "label": "Remote Repository" },
+                { "id": "objects", "label": "Objects (commits, trees, blobs)" },
+                { "id": "refs", "label": "Refs (branches, tags)" },
+                { "id": "remote_main", "label": "origin/main" },
+                { "id": "local_main", "label": "main" }
+              ],
+              "edges": [
+                { "from": "local", "to": "remote", "label": "fetch from" },
+                { "from": "remote", "to": "objects", "label": "sends" },
+                { "from": "remote", "to": "refs", "label": "sends" },
+                { "from": "objects", "to": "local", "label": "stored in" },
+                { "from": "refs", "to": "remote_main", "label": "updates" },
+                { "from": "local_main", "to": "local", "label": "unchanged" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Pulling from a Remote",
+        "content": "The `git pull` command fetches from a remote repository and integrates the changes into your current branch.",
+        "commands": [
+          {
+            "command": "git pull origin main",
+            "description": "Pull from the 'main' branch of the 'origin' remote",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During Pull",
+          "content": "The `git pull` command is essentially a combination of two operations:\n\n1. `git fetch` - Downloads objects and refs from the remote repository\n2. `git merge` or `git rebase` - Integrates the changes into your current branch\n\nBy default, `git pull` uses merge to integrate the changes. This creates a merge commit if there are divergent changes. You can configure Git to use rebase instead with `git pull --rebase` or by setting the `pull.rebase` configuration option.\n\nUnlike `fetch`, `pull` does modify your working directory and current branch to incorporate the remote changes.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "local_main", "label": "Local main" },
+                { "id": "remote_main", "label": "Remote main" },
+                { "id": "fetch", "label": "git fetch" },
+                { "id": "merge", "label": "git merge" },
+                { "id": "pull", "label": "git pull" },
+                { "id": "commit1", "label": "Commit A" },
+                { "id": "commit2", "label": "Commit B (remote)" },
+                { "id": "merge_commit", "label": "Merge Commit" }
+              ],
+              "edges": [
+                { "from": "pull", "to": "fetch", "label": "first step" },
+                { "from": "pull", "to": "merge", "label": "second step" },
+                { "from": "local_main", "to": "commit1", "label": "points to" },
+                { "from": "remote_main", "to": "commit2", "label": "points to" },
+                { "from": "merge", "to": "merge_commit", "label": "creates" },
+                { "from": "merge_commit", "to": "commit1", "label": "parent" },
+                { "from": "merge_commit", "to": "commit2", "label": "parent" },
+                { "from": "local_main", "to": "merge_commit", "label": "updated to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Pushing to a Remote",
+        "content": "The `git push` command uploads your local branch commits to a remote repository.",
+        "commands": [
+          {
+            "command": "git push origin main",
+            "description": "Push the 'main' branch to the 'origin' remote",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During Push",
+          "content": "When you run `git push`, Git contacts the remote repository and sends the objects and refs that the remote doesn't have yet. This includes commits, trees, and blobs. The remote repository then updates its refs (branches or tags) to point to the new commits.\n\nFor a push to succeed, your local branch must be ahead of the remote branch, meaning it contains commits that the remote doesn't have. If the remote has commits that you don't have (i.e., someone else has pushed changes), Git will reject your push. In that case, you need to pull the remote changes first, integrate them with your work, and then push again.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "local", "label": "Local Repository" },
+                { "id": "remote", "label": "Remote Repository" },
+                { "id": "local_main", "label": "Local main" },
+                { "id": "remote_main", "label": "Remote main" },
+                { "id": "commit1", "label": "Commit A" },
+                { "id": "commit2", "label": "Commit B" },
+                { "id": "commit3", "label": "Commit C (new)" }
+              ],
+              "edges": [
+                { "from": "local", "to": "remote", "label": "push to" },
+                { "from": "local_main", "to": "commit3", "label": "points to" },
+                { "from": "remote_main", "to": "commit2", "label": "points to (before)" },
+                { "from": "commit3", "to": "commit2", "label": "parent" },
+                { "from": "commit2", "to": "commit1", "label": "parent" },
+                { "from": "remote_main", "to": "commit3", "label": "updated to (after)" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Working with GitHub",
+        "content": "GitHub is one of the most popular platforms for hosting Git repositories. Let's look at some GitHub-specific workflows.",
+        "behindTheCommand": {
+          "title": "GitHub Workflow",
+          "content": "GitHub provides a web-based interface for Git repositories, along with additional features like pull requests, issues, and actions. A typical GitHub workflow involves:\n\n1. **Forking a repository** - Creating your own copy of someone else's repository\n2. **Cloning your fork** - Downloading your fork to your local machine\n3. **Creating a branch** - Making a new branch for your changes\n4. **Making changes** - Editing files and committing your changes\n5. **Pushing to your fork** - Uploading your changes to your GitHub fork\n6. **Creating a pull request** - Requesting that the original repository incorporate your changes\n\nThis workflow allows for collaboration while maintaining control over who can directly modify the main repository.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "upstream", "label": "Upstream Repository" },
+                { "id": "fork", "label": "Your Fork" },
+                { "id": "local", "label": "Local Repository" },
+                { "id": "branch", "label": "Feature Branch" },
+                { "id": "pr", "label": "Pull Request" }
+              ],
+              "edges": [
+                { "from": "upstream", "to": "fork", "label": "fork" },
+                { "from": "fork", "to": "local", "label": "clone" },
+                { "from": "local", "to": "branch", "label": "create" },
+                { "from": "branch", "to": "fork", "label": "push" },
+                { "from": "fork", "to": "pr", "label": "create" },
+                { "from": "pr", "to": "upstream", "label": "merge into" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Cloning a Repository",
+        "content": "The `git clone` command creates a copy of a remote repository on your local machine.",
+        "commands": [
+          {
+            "command": "git clone https://github.com/username/repository.git",
+            "description": "Clone a repository from GitHub",
+            "expectedOutput": "Cloning into 'repository'...\nremote: Enumerating objects: 100, done.\nremote: Counting objects: 100% (100/100), done.\nremote: Compressing objects: 100% (80/80), done.\nremote: Total 100 (delta 20), reused 90 (delta 10), pack-reused 0\nReceiving objects: 100% (100/100), 10.00 KiB | 5.00 MiB/s, done.\nResolving deltas: 100% (20/20), done."
+          }
+        ],
+        "behindTheCommand": {
+          "title": "What Happens During Clone",
+          "content": "When you run `git clone`, Git performs several operations:\n\n1. Creates a new directory for the repository\n2. Initializes a new Git repository in that directory\n3. Adds a remote named 'origin' pointing to the URL you provided\n4. Fetches all objects and refs from the remote repository\n5. Creates local branches that track remote branches (usually just 'main' or 'master')\n6. Checks out the default branch (usually 'main' or 'master')\n\nAfter cloning, you have a complete copy of the repository, including all its history. The local branches are set up to track their remote counterparts, making it easy to push and pull changes.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "remote", "label": "Remote Repository" },
+                { "id": "local", "label": "Local Repository" },
+                { "id": "objects", "label": "Objects (commits, trees, blobs)" },
+                { "id": "refs", "label": "Refs (branches, tags)" },
+                { "id": "origin", "label": "origin remote" },
+                { "id": "main", "label": "main branch" }
+              ],
+              "edges": [
+                { "from": "remote", "to": "local", "label": "clone to" },
+                { "from": "remote", "to": "objects", "label": "sends" },
+                { "from": "remote", "to": "refs", "label": "sends" },
+                { "from": "objects", "to": "local", "label": "stored in" },
+                { "from": "refs", "to": "local", "label": "stored in" },
+                { "from": "local", "to": "origin", "label": "creates" },
+                { "from": "local", "to": "main", "label": "checks out" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Working with Multiple Remotes",
+        "content": "You can work with multiple remote repositories by adding them with different names.",
+        "commands": [
+          {
+            "command": "git remote add upstream https://github.com/original/repository.git",
+            "description": "Add another remote named 'upstream'",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git remote -v",
+            "description": "View all remotes",
+            "expectedOutput": "origin  https://github.com/username/repository.git (fetch)\norigin  https://github.com/username/repository.git (push)\nupstream  https://github.com/original/repository.git (fetch)\nupstream  https://github.com/original/repository.git (push)"
+          },
+          {
+            "command": "git fetch upstream",
+            "description": "Fetch from the upstream remote",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Managing Multiple Remotes",
+          "content": "Working with multiple remotes is common in open-source development, where you might have your own fork of a repository as well as a reference to the original repository. By convention, the original repository is often called 'upstream'.\n\nWith multiple remotes, you can:\n\n1. Push your changes to your own fork (`git push origin feature-branch`)\n2. Keep your fork updated with changes from the original repository (`git pull upstream main`)\n3. Create pull requests from your fork to the original repository\n\nThis setup gives you the flexibility to contribute to projects while maintaining your own copy of the code.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "local", "label": "Local Repository" },
+                { "id": "origin", "label": "Origin (Your Fork)" },
+                { "id": "upstream", "label": "Upstream (Original Repo)" },
+                { "id": "feature", "label": "Feature Branch" },
+                { "id": "origin_main", "label": "origin/main" },
+                { "id": "upstream_main", "label": "upstream/main" }
+              ],
+              "edges": [
+                { "from": "local", "to": "origin", "label": "push to" },
+                { "from": "local", "to": "upstream", "label": "pull from" },
+                { "from": "local", "to": "feature", "label": "creates" },
+                { "from": "feature", "to": "origin", "label": "push to" },
+                { "from": "origin", "to": "origin_main", "label": "has branch" },
+                { "from": "upstream", "to": "upstream_main", "label": "has branch" },
+                { "from": "upstream_main", "to": "origin_main", "label": "ahead of" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

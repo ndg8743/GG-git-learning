@@ -1,0 +1,408 @@
+{
+  "id": "git-internals-avl",
+  "title": "Git Internals: AVL Trees",
+  "description": "Self-balancing trees in Git's implementation",
+  "content": {
+    "overview": "In this module, you'll learn how Git uses AVL trees, a type of self-balancing binary search tree, to efficiently manage and search through large collections of objects. Understanding this data structure is crucial for comprehending Git's performance characteristics and internal operations, especially when dealing with large repositories.",
+    "steps": [
+      {
+        "title": "Introduction to AVL Trees in Git",
+        "content": "AVL trees, named after their inventors Adelson-Velsky and Landis, are self-balancing binary search trees where the height difference between left and right subtrees (the balance factor) is at most 1 for every node. Git uses AVL trees to efficiently store and retrieve objects, particularly for operations that require fast lookups and ordered traversals.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "root", "label": "8" },
+              { "id": "node4", "label": "4" },
+              { "id": "node12", "label": "12" },
+              { "id": "node2", "label": "2" },
+              { "id": "node6", "label": "6" },
+              { "id": "node10", "label": "10" },
+              { "id": "node14", "label": "14" }
+            ],
+            "edges": [
+              { "from": "root", "to": "node4", "label": "left" },
+              { "from": "root", "to": "node12", "label": "right" },
+              { "from": "node4", "to": "node2", "label": "left" },
+              { "from": "node4", "to": "node6", "label": "right" },
+              { "from": "node12", "to": "node10", "label": "left" },
+              { "from": "node12", "to": "node14", "label": "right" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Why Git Uses AVL Trees",
+        "content": "Git needs to efficiently manage large numbers of objects, often with operations that require both fast lookups and ordered traversals. AVL trees provide O(log n) time complexity for search, insert, and delete operations, while maintaining a balanced structure that ensures consistent performance even as the repository grows.",
+        "behindTheCommand": {
+          "title": "Performance Benefits of AVL Trees",
+          "content": "Git's performance depends on efficient data structures, especially for large repositories. Here's why AVL trees are beneficial:\n\n1. **Guaranteed O(log n) operations**: Unlike regular binary search trees that can degenerate into linked lists (O(n) operations), AVL trees maintain balance to ensure O(log n) complexity.\n\n2. **Memory efficiency**: Compared to other self-balancing trees like Red-Black trees, AVL trees maintain stricter balance, potentially resulting in faster lookups.\n\n3. **Ordered traversal**: Git often needs to process objects in order (e.g., commit history), and AVL trees provide efficient in-order traversal.\n\n4. **Predictable performance**: The strict balancing ensures consistent performance regardless of the insertion order of objects.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "balanced", "label": "Balanced AVL Tree" },
+                { "id": "unbalanced", "label": "Unbalanced BST" },
+                { "id": "op_balanced", "label": "O(log n) Operations" },
+                { "id": "op_unbalanced", "label": "O(n) Operations" }
+              ],
+              "edges": [
+                { "from": "balanced", "to": "op_balanced", "label": "ensures" },
+                { "from": "unbalanced", "to": "op_unbalanced", "label": "degrades to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "AVL Tree Structure and Balance Factor",
+        "content": "The key to AVL trees is the balance factor, which is the height difference between the right and left subtrees. For every node in an AVL tree, this factor must be -1, 0, or 1. When an insertion or deletion would violate this property, the tree performs rotations to restore balance.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "node7", "label": "7 (BF: 0)" },
+              { "id": "node3", "label": "3 (BF: 0)" },
+              { "id": "node11", "label": "11 (BF: 0)" },
+              { "id": "node1", "label": "1 (BF: 0)" },
+              { "id": "node5", "label": "5 (BF: 0)" },
+              { "id": "node9", "label": "9 (BF: 0)" },
+              { "id": "node13", "label": "13 (BF: 0)" }
+            ],
+            "edges": [
+              { "from": "node7", "to": "node3", "label": "left" },
+              { "from": "node7", "to": "node11", "label": "right" },
+              { "from": "node3", "to": "node1", "label": "left" },
+              { "from": "node3", "to": "node5", "label": "right" },
+              { "from": "node11", "to": "node9", "label": "left" },
+              { "from": "node11", "to": "node13", "label": "right" }
+            ]
+          }
+        },
+        "behindTheCommand": {
+          "title": "Calculating Balance Factors",
+          "content": "The balance factor (BF) of a node is calculated as:\n\nBF = Height(RightSubtree) - Height(LeftSubtree)\n\nWhere the height of a subtree is the number of edges in the longest path from the root to a leaf. For an AVL tree to remain balanced, every node must have a balance factor of -1, 0, or 1.\n\nWhen a node's balance factor becomes -2 or 2 after an insertion or deletion, the tree performs rotations to restore balance.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "root", "label": "Node X (BF: 2)" },
+                { "id": "left", "label": "Left Child (Height: 1)" },
+                { "id": "right", "label": "Right Child (Height: 3)" },
+                { "id": "formula", "label": "BF = 3 - 1 = 2" }
+              ],
+              "edges": [
+                { "from": "root", "to": "left", "label": "" },
+                { "from": "root", "to": "right", "label": "" },
+                { "from": "root", "to": "formula", "label": "calculates" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "AVL Tree Rotations",
+        "content": "When an AVL tree becomes unbalanced after an insertion or deletion, it performs rotations to restore balance. There are four types of rotations: Left Rotation, Right Rotation, Left-Right Rotation, and Right-Left Rotation.",
+        "behindTheCommand": {
+          "title": "Understanding AVL Tree Rotations",
+          "content": "AVL trees use rotations to maintain balance. Here are the four types of rotations:\n\n1. **Left Rotation (LL)**: Used when a node becomes unbalanced with a balance factor of 2, and its right child has a balance factor of 1 or 0.\n\n2. **Right Rotation (RR)**: Used when a node becomes unbalanced with a balance factor of -2, and its left child has a balance factor of -1 or 0.\n\n3. **Left-Right Rotation (LR)**: A combination of a left rotation on the left child followed by a right rotation on the node. Used when a node has a balance factor of -2 and its left child has a balance factor of 1.\n\n4. **Right-Left Rotation (RL)**: A combination of a right rotation on the right child followed by a left rotation on the node. Used when a node has a balance factor of 2 and its right child has a balance factor of -1.\n\nThese rotations ensure that the tree remains balanced after insertions and deletions, maintaining O(log n) time complexity for operations.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "before", "label": "Unbalanced Tree" },
+                { "id": "after", "label": "Balanced Tree" },
+                { "id": "rotation", "label": "Rotation Operation" }
+              ],
+              "edges": [
+                { "from": "before", "to": "rotation", "label": "triggers" },
+                { "from": "rotation", "to": "after", "label": "produces" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Left Rotation Example",
+        "content": "Let's examine a Left Rotation (LL), which is used when a node becomes right-heavy (balance factor of 2) and its right child is either balanced or right-heavy.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "before_a", "label": "A (BF: 2)" },
+              { "id": "before_b", "label": "B (BF: 1)" },
+              { "id": "before_c", "label": "C" },
+              { "id": "before_d", "label": "D" },
+              { "id": "after_b", "label": "B (BF: 0)" },
+              { "id": "after_a", "label": "A (BF: 0)" },
+              { "id": "after_c", "label": "C" },
+              { "id": "after_d", "label": "D" }
+            ],
+            "edges": [
+              { "from": "before_a", "to": "before_b", "label": "right" },
+              { "from": "before_b", "to": "before_c", "label": "left" },
+              { "from": "before_b", "to": "before_d", "label": "right" },
+              { "from": "after_b", "to": "after_a", "label": "left" },
+              { "from": "after_b", "to": "after_d", "label": "right" },
+              { "from": "after_a", "to": "after_c", "label": "right" }
+            ]
+          }
+        },
+        "behindTheCommand": {
+          "title": "Left Rotation Algorithm",
+          "content": "The Left Rotation algorithm works as follows:\n\n1. The right child (B) of the unbalanced node (A) becomes the new root of the subtree.\n2. The unbalanced node (A) becomes the left child of the new root (B).\n3. The left child (C) of the new root (B), if it exists, becomes the right child of the original unbalanced node (A).\n\nThis rotation reduces the height of the right subtree by 1, restoring the AVL property.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "step1", "label": "1. Identify unbalanced node A with BF = 2" },
+                { "id": "step2", "label": "2. Make right child B the new root" },
+                { "id": "step3", "label": "3. Make A the left child of B" },
+                { "id": "step4", "label": "4. Move B's left child C to be A's right child" }
+              ],
+              "edges": [
+                { "from": "step1", "to": "step2", "label": "" },
+                { "from": "step2", "to": "step3", "label": "" },
+                { "from": "step3", "to": "step4", "label": "" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Right Rotation Example",
+        "content": "Now let's examine a Right Rotation (RR), which is used when a node becomes left-heavy (balance factor of -2) and its left child is either balanced or left-heavy.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "nodes": [
+              { "id": "before_a", "label": "A (BF: -2)" },
+              { "id": "before_b", "label": "B (BF: -1)" },
+              { "id": "before_c", "label": "C" },
+              { "id": "before_d", "label": "D" },
+              { "id": "after_b", "label": "B (BF: 0)" },
+              { "id": "after_a", "label": "A (BF: 0)" },
+              { "id": "after_c", "label": "C" },
+              { "id": "after_d", "label": "D" }
+            ],
+            "edges": [
+              { "from": "before_a", "to": "before_b", "label": "left" },
+              { "from": "before_b", "to": "before_c", "label": "left" },
+              { "from": "before_b", "to": "before_d", "label": "right" },
+              { "from": "after_b", "to": "after_c", "label": "left" },
+              { "from": "after_b", "to": "after_a", "label": "right" },
+              { "from": "after_a", "to": "after_d", "label": "left" }
+            ]
+          }
+        },
+        "behindTheCommand": {
+          "title": "Right Rotation Algorithm",
+          "content": "The Right Rotation algorithm works as follows:\n\n1. The left child (B) of the unbalanced node (A) becomes the new root of the subtree.\n2. The unbalanced node (A) becomes the right child of the new root (B).\n3. The right child (D) of the new root (B), if it exists, becomes the left child of the original unbalanced node (A).\n\nThis rotation reduces the height of the left subtree by 1, restoring the AVL property.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "step1", "label": "1. Identify unbalanced node A with BF = -2" },
+                { "id": "step2", "label": "2. Make left child B the new root" },
+                { "id": "step3", "label": "3. Make A the right child of B" },
+                { "id": "step4", "label": "4. Move B's right child D to be A's left child" }
+              ],
+              "edges": [
+                { "from": "step1", "to": "step2", "label": "" },
+                { "from": "step2", "to": "step3", "label": "" },
+                { "from": "step3", "to": "step4", "label": "" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Double Rotations: Left-Right and Right-Left",
+        "content": "Sometimes a single rotation isn't enough to balance an AVL tree. In these cases, we need to perform double rotations: Left-Right (LR) or Right-Left (RL).",
+        "behindTheCommand": {
+          "title": "Double Rotation Scenarios",
+          "content": "Double rotations are needed in two specific scenarios:\n\n1. **Left-Right (LR) Rotation**: When a node has a balance factor of -2 and its left child has a balance factor of 1. This requires a left rotation on the left child followed by a right rotation on the node.\n\n2. **Right-Left (RL) Rotation**: When a node has a balance factor of 2 and its right child has a balance factor of -1. This requires a right rotation on the right child followed by a left rotation on the node.\n\nThese double rotations handle the cases where the imbalance is caused by an insertion or deletion in the 'inner' subtree (left child's right subtree or right child's left subtree).",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "lr_before", "label": "Left-Right Case (Before)" },
+                { "id": "lr_step1", "label": "After Left Rotation on Left Child" },
+                { "id": "lr_after", "label": "After Right Rotation on Root" },
+                { "id": "rl_before", "label": "Right-Left Case (Before)" },
+                { "id": "rl_step1", "label": "After Right Rotation on Right Child" },
+                { "id": "rl_after", "label": "After Left Rotation on Root" }
+              ],
+              "edges": [
+                { "from": "lr_before", "to": "lr_step1", "label": "step 1" },
+                { "from": "lr_step1", "to": "lr_after", "label": "step 2" },
+                { "from": "rl_before", "to": "rl_step1", "label": "step 1" },
+                { "from": "rl_step1", "to": "rl_after", "label": "step 2" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "AVL Trees in Git's Implementation",
+        "content": "In Git's codebase, AVL trees are used for efficient object storage and retrieval, particularly in the packed object store. Let's explore how Git uses AVL trees to manage objects.",
+        "behindTheCommand": {
+          "title": "Git's Use of AVL Trees",
+          "content": "Git uses AVL trees in several key areas:\n\n1. **Object Storage**: Git's packed object store uses a variant of AVL trees to efficiently store and retrieve objects by their SHA-1 hash. This allows for O(log n) lookup times even with millions of objects.\n\n2. **Branch and Reference Management**: When you have many branches or tags, Git uses tree structures to efficiently manage and look up references.\n\n3. **Directory Cache (Index)**: Git's index uses tree structures to track the state of the working directory and staging area.\n\n4. **Commit Graph Navigation**: When traversing the commit history, Git uses tree structures to efficiently navigate the commit graph.\n\nThe self-balancing property of AVL trees ensures that these operations remain efficient even as repositories grow in size and complexity.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "git", "label": "Git Repository" },
+                { "id": "objects", "label": "Object Store" },
+                { "id": "refs", "label": "References" },
+                { "id": "index", "label": "Index" },
+                { "id": "avl1", "label": "AVL Tree" },
+                { "id": "avl2", "label": "AVL Tree" },
+                { "id": "avl3", "label": "AVL Tree" }
+              ],
+              "edges": [
+                { "from": "git", "to": "objects", "label": "contains" },
+                { "from": "git", "to": "refs", "label": "contains" },
+                { "from": "git", "to": "index", "label": "contains" },
+                { "from": "objects", "to": "avl1", "label": "uses" },
+                { "from": "refs", "to": "avl2", "label": "uses" },
+                { "from": "index", "to": "avl3", "label": "uses" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Performance Analysis: AVL vs. Other Trees",
+        "content": "Let's compare the performance characteristics of AVL trees with other tree structures that Git could potentially use.",
+        "behindTheCommand": {
+          "title": "Comparing Tree Data Structures",
+          "content": "Git could potentially use various tree structures, each with different performance characteristics:\n\n1. **AVL Trees**:\n   - Strictest balance (height difference ≤ 1)\n   - Faster lookups due to better balance\n   - More rotations during insertion/deletion\n   - Height is approximately 1.44 × log₂(n)\n\n2. **Red-Black Trees**:\n   - Less strict balance (no path more than twice as long as any other)\n   - Fewer rotations during insertion/deletion\n   - Slightly slower lookups than AVL trees\n   - Height is approximately 2 × log₂(n)\n\n3. **B-Trees**:\n   - Better cache locality\n   - Good for disk-based storage\n   - More complex implementation\n   - Height is approximately log_m(n) where m is the order\n\n4. **Splay Trees**:\n   - Self-adjusting based on access patterns\n   - Good for frequently accessed items\n   - No guaranteed worst-case performance\n\nGit's choice of tree structure depends on the specific use case, with AVL trees being preferred when lookup performance is critical and the tree is not modified frequently.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "avl", "label": "AVL Tree" },
+                { "id": "rb", "label": "Red-Black Tree" },
+                { "id": "b", "label": "B-Tree" },
+                { "id": "splay", "label": "Splay Tree" },
+                { "id": "lookup", "label": "Lookup Speed" },
+                { "id": "insert", "label": "Insert/Delete Speed" },
+                { "id": "memory", "label": "Memory Usage" },
+                { "id": "complexity", "label": "Implementation Complexity" }
+              ],
+              "edges": [
+                { "from": "avl", "to": "lookup", "label": "fastest" },
+                { "from": "avl", "to": "insert", "label": "slower" },
+                { "from": "avl", "to": "memory", "label": "moderate" },
+                { "from": "avl", "to": "complexity", "label": "moderate" },
+                { "from": "rb", "to": "lookup", "label": "fast" },
+                { "from": "rb", "to": "insert", "label": "faster" },
+                { "from": "rb", "to": "memory", "label": "moderate" },
+                { "from": "rb", "to": "complexity", "label": "high" },
+                { "from": "b", "to": "lookup", "label": "fast" },
+                { "from": "b", "to": "insert", "label": "moderate" },
+                { "from": "b", "to": "memory", "label": "efficient" },
+                { "from": "b", "to": "complexity", "label": "highest" },
+                { "from": "splay", "to": "lookup", "label": "variable" },
+                { "from": "splay", "to": "insert", "label": "variable" },
+                { "from": "splay", "to": "memory", "label": "moderate" },
+                { "from": "splay", "to": "complexity", "label": "moderate" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Implementing an AVL Tree",
+        "content": "Let's look at a simplified implementation of an AVL tree to understand how Git might implement this data structure.",
+        "commands": [
+          {
+            "command": "mkdir -p avl-demo",
+            "description": "Create a directory for our demo",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cd avl-demo",
+            "description": "Navigate to the project directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo 'class AVLNode {\n  constructor(key) {\n    this.key = key;\n    this.height = 1;\n    this.left = null;\n    this.right = null;\n  }\n}' > avl.js",
+            "description": "Create a file with the AVL Node class",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '\nclass AVLTree {\n  constructor() {\n    this.root = null;\n  }\n\n  height(node) {\n    return node ? node.height : 0;\n  }\n\n  balanceFactor(node) {\n    return node ? this.height(node.right) - this.height(node.left) : 0;\n  }\n\n  updateHeight(node) {\n    node.height = Math.max(this.height(node.left), this.height(node.right)) + 1;\n  }\n}' >> avl.js",
+            "description": "Add the AVL Tree class with helper methods",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '\n  // Left rotation\n  rotateLeft(x) {\n    const y = x.right;\n    const T2 = y.left;\n\n    // Perform rotation\n    y.left = x;\n    x.right = T2;\n\n    // Update heights\n    this.updateHeight(x);\n    this.updateHeight(y);\n\n    // Return new root\n    return y;\n  }' >> avl.js",
+            "description": "Add the left rotation method",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '\n  // Right rotation\n  rotateRight(y) {\n    const x = y.left;\n    const T2 = x.right;\n\n    // Perform rotation\n    x.right = y;\n    y.left = T2;\n\n    // Update heights\n    this.updateHeight(y);\n    this.updateHeight(x);\n\n    // Return new root\n    return x;\n  }' >> avl.js",
+            "description": "Add the right rotation method",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo '\n  // Insert a key into the tree\n  insert(key) {\n    this.root = this._insert(this.root, key);\n  }\n\n  _insert(node, key) {\n    // Standard BST insert\n    if (!node) return new AVLNode(key);\n\n    if (key < node.key)\n      node.left = this._insert(node.left, key);\n    else if (key > node.key)\n      node.right = this._insert(node.right, key);\n    else // Duplicate keys not allowed\n      return node;\n\n    // Update height of current node\n    this.updateHeight(node);\n\n    // Get the balance factor\n    const balance = this.balanceFactor(node);\n\n    // Left Left Case\n    if (balance < -1 && key < node.left.key)\n      return this.rotateRight(node);\n\n    // Right Right Case\n    if (balance > 1 && key > node.right.key)\n      return this.rotateLeft(node);\n\n    // Left Right Case\n    if (balance < -1 && key > node.left.key) {\n      node.left = this.rotateLeft(node.left);\n      return this.rotateRight(node);\n    }\n\n    // Right Left Case\n    if (balance > 1 && key < node.right.key) {\n      node.right = this.rotateRight(node.right);\n      return this.rotateLeft(node);\n    }\n\n    // Return the unchanged node\n    return node;\n  }\n}' >> avl.js",
+            "description": "Add the insert method with balancing logic",
+            "expectedOutput": ""
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Key Components of AVL Implementation",
+          "content": "The AVL tree implementation we've created demonstrates several key concepts:\n\n1. **Node Structure**: Each node contains a key, height, and references to left and right children.\n\n2. **Height and Balance Factor**: The height of a node is the length of the longest path from it to a leaf. The balance factor is the difference between the heights of the right and left subtrees.\n\n3. **Rotations**: The implementation includes left and right rotations, which are used to rebalance the tree when necessary.\n\n4. **Insertion with Balancing**: The insert method includes logic to detect imbalances and perform the appropriate rotations to restore balance.\n\n5. **Four Balancing Cases**: The implementation handles all four cases of imbalance: Left-Left, Right-Right, Left-Right, and Right-Left.\n\nGit's actual implementation would be more complex and optimized for its specific use cases, but the core principles remain the same.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "insert", "label": "Insert Operation" },
+                { "id": "bst", "label": "BST Insert" },
+                { "id": "height", "label": "Update Heights" },
+                { "id": "balance", "label": "Check Balance Factor" },
+                { "id": "rotate", "label": "Perform Rotations if Needed" }
+              ],
+              "edges": [
+                { "from": "insert", "to": "bst", "label": "step 1" },
+                { "from": "bst", "to": "height", "label": "step 2" },
+                { "from": "height", "to": "balance", "label": "step 3" },
+                { "from": "balance", "to": "rotate", "label": "step 4" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Real-world Impact: Git Performance with AVL Trees",
+        "content": "Let's examine how AVL trees impact Git's performance in real-world scenarios, particularly with large repositories.",
+        "behindTheCommand": {
+          "title": "Performance Benefits in Large Repositories",
+          "content": "The use of AVL trees and other efficient data structures has a significant impact on Git's performance, especially in large repositories:\n\n1. **Scaling with Repository Size**: As repositories grow to contain thousands or millions of objects, operations like `git status`, `git log`, and `git checkout` remain efficient due to O(log n) lookup times.\n\n2. **Branch and Tag Management**: Even with hundreds or thousands of branches and tags, Git can quickly find and update references.\n\n3. **Object Deduplication**: Git's object store efficiently identifies and stores unique objects, reducing storage requirements and improving performance.\n\n4. **Fast Path Traversal**: When navigating the directory structure, Git can quickly find files and directories using its tree-based index.\n\n5. **Commit History Navigation**: Traversing the commit history remains efficient even with complex branching and merging patterns.\n\nWithout efficient data structures like AVL trees, Git would struggle to maintain its performance as repositories grow in size and complexity.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "nodes": [
+                { "id": "small", "label": "Small Repo (100 files)" },
+                { "id": "medium", "label": "Medium Repo (10,000 files)" },
+                { "id": "large", "label": "Large Repo (1,000,000 files)" },
+                { "id": "time_small", "label": "Fast Operations" },
+                { "id": "time_medium", "label": "Slightly Slower" },
+                { "id": "time_large", "label": "Still O(log n)" }
+              ],
+              "edges": [
+                { "from": "small", "to": "time_small", "label": "O(log 100)" },
+                { "from": "medium", "to": "time_medium", "label": "O(log 10,000)" },
+                { "from": "large", "to": "time_large", "label": "O(log 1,000,000)" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

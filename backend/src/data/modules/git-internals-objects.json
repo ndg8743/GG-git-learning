@@ -1,0 +1,402 @@
+{
+  "id": "git-internals-objects",
+  "title": "Git Internals: Objects & References",
+  "description": "Understanding Git's internal data structures",
+  "content": {
+    "overview": "Git is built on a simple but powerful object model. In this module, you'll learn about Git's core objects (blobs, trees, commits) and references, which form the foundation of Git's version control system.",
+    "steps": [
+      {
+        "title": "Git's Object Database",
+        "content": "At its core, Git is a content-addressable filesystem. It stores all data as objects in a simple key-value store, where the key is a hash of the content (SHA-1), and the value is the content itself. This design is what makes Git so powerful and efficient.",
+        "visualizations": {
+          "type": "diagram",
+          "data": {
+            "type": "generic",
+            "nodes": [
+              { "id": "objects", "label": "Git Objects" },
+              { "id": "blob", "label": "Blob" },
+              { "id": "tree", "label": "Tree" },
+              { "id": "commit", "label": "Commit" },
+              { "id": "tag", "label": "Tag" }
+            ],
+            "edges": [
+              { "from": "objects", "to": "blob", "label": "type" },
+              { "from": "objects", "to": "tree", "label": "type" },
+              { "from": "objects", "to": "commit", "label": "type" },
+              { "from": "objects", "to": "tag", "label": "type" }
+            ]
+          }
+        },
+        "behindTheCommand": {
+          "title": "The .git Directory",
+          "content": "When you initialize a Git repository with `git init`, Git creates a `.git` directory to store all its data. The most important subdirectory is `.git/objects`, which contains all the objects in the repository.\n\nObjects are stored in a content-addressable way: the SHA-1 hash of an object's content determines its filename. The first two characters of the hash form a subdirectory name, and the remaining 38 characters form the filename within that subdirectory. For example, an object with hash `a1b2c3d4...` would be stored at `.git/objects/a1/b2c3d4...`.\n\nThis design ensures that identical content is stored only once, regardless of where it appears in the repository or its history.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "trie",
+              "nodes": [
+                { "id": "git", "label": ".git/" },
+                { "id": "objects", "label": "objects/" },
+                { "id": "a1", "label": "a1/" },
+                { "id": "b2", "label": "b2/" },
+                { "id": "c3", "label": "c3/" },
+                { "id": "a1b2", "label": "b2c3d4..." },
+                { "id": "b2c3", "label": "c3d4e5..." },
+                { "id": "c3d4", "label": "d4e5f6..." }
+              ],
+              "edges": [
+                { "from": "git", "to": "objects" },
+                { "from": "objects", "to": "a1" },
+                { "from": "objects", "to": "b2" },
+                { "from": "objects", "to": "c3" },
+                { "from": "a1", "to": "a1b2" },
+                { "from": "b2", "to": "b2c3" },
+                { "from": "c3", "to": "c3d4" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Blob Objects",
+        "content": "Blob (binary large object) objects store the content of files. They are the simplest type of Git object and contain just the raw data of a file without any metadata like filename or permissions.",
+        "commands": [
+          {
+            "command": "echo 'Hello, Git!' > hello.txt",
+            "description": "Create a simple text file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git hash-object -w hello.txt",
+            "description": "Create a blob object from the file and store it in the object database",
+            "expectedOutput": "a8a940627d132695a9769df883f85992f0ff4a43"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Blob Object",
+          "content": "A blob object is the simplest type of Git object. It contains:\n\n1. A header that specifies the object type ('blob') and the content size\n2. A null byte separator\n3. The raw content of the file\n\nWhen you run `git hash-object -w`, Git:\n1. Creates this blob object\n2. Calculates its SHA-1 hash\n3. Stores it in the object database at `.git/objects/<first-2-chars>/<remaining-38-chars>`\n4. Returns the hash\n\nBlob objects don't store any metadata about the file, such as its name or permissions. That information is stored in tree objects, which we'll explore next.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "blob", "label": "Blob Object" },
+                { "id": "header", "label": "Header: 'blob 12\\0'" },
+                { "id": "content", "label": "Content: 'Hello, Git!'" },
+                { "id": "hash", "label": "SHA-1: a8a940..." },
+                { "id": "file", "label": ".git/objects/a8/a940..." }
+              ],
+              "edges": [
+                { "from": "blob", "to": "header", "label": "contains" },
+                { "from": "blob", "to": "content", "label": "contains" },
+                { "from": "blob", "to": "hash", "label": "identified by" },
+                { "from": "hash", "to": "file", "label": "stored at" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Tree Objects",
+        "content": "Tree objects represent directories in Git. They store references to blobs (files) and other trees (subdirectories), along with metadata like filenames and permissions.",
+        "commands": [
+          {
+            "command": "mkdir src",
+            "description": "Create a directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "echo 'console.log(\"Hello\");' > src/main.js",
+            "description": "Create a file in the directory",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git add .",
+            "description": "Stage the files",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git write-tree",
+            "description": "Create a tree object from the staging area",
+            "expectedOutput": "7bb943559a305bdd6b458c2ff251d3d08f3f9ec8"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Tree Object",
+          "content": "A tree object represents a directory snapshot in Git. It contains:\n\n1. A header that specifies the object type ('tree') and the content size\n2. A null byte separator\n3. A list of entries, each with:\n   - File mode (permissions)\n   - Filename\n   - SHA-1 hash of the blob or tree the entry points to\n\nWhen you run `git write-tree`, Git creates a tree object from the current staging area (index). This tree represents the exact state of the directory at that point.\n\nTree objects create a hierarchy that mirrors your directory structure. The root tree contains entries for top-level files and directories, and each directory is represented by another tree object.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "root_tree", "label": "Root Tree" },
+                { "id": "hello_blob", "label": "hello.txt Blob" },
+                { "id": "src_tree", "label": "src/ Tree" },
+                { "id": "main_blob", "label": "main.js Blob" },
+                { "id": "entry1", "label": "100644 hello.txt a8a940..." },
+                { "id": "entry2", "label": "040000 src 7bb943..." },
+                { "id": "entry3", "label": "100644 main.js 5be1e6..." }
+              ],
+              "edges": [
+                { "from": "root_tree", "to": "entry1", "label": "contains" },
+                { "from": "root_tree", "to": "entry2", "label": "contains" },
+                { "from": "entry1", "to": "hello_blob", "label": "points to" },
+                { "from": "entry2", "to": "src_tree", "label": "points to" },
+                { "from": "src_tree", "to": "entry3", "label": "contains" },
+                { "from": "entry3", "to": "main_blob", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Commit Objects",
+        "content": "Commit objects represent snapshots of your project at specific points in time. They point to a tree object and contain metadata like author, committer, date, and commit message.",
+        "commands": [
+          {
+            "command": "git commit -m \"Initial commit\"",
+            "description": "Create a commit",
+            "expectedOutput": "[master (root-commit) f7f51c7] Initial commit\n 2 files changed, 2 insertions(+)\n create mode 100644 hello.txt\n create mode 100644 src/main.js"
+          },
+          {
+            "command": "git cat-file -p f7f51c7",
+            "description": "View the commit object",
+            "expectedOutput": "tree 7bb943559a305bdd6b458c2ff251d3d08f3f9ec8\nauthor John Doe <john@example.com> 1619712345 -0400\ncommitter John Doe <john@example.com> 1619712345 -0400\n\nInitial commit"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "Anatomy of a Commit Object",
+          "content": "A commit object represents a snapshot of your project at a specific point in time. It contains:\n\n1. A header that specifies the object type ('commit') and the content size\n2. A null byte separator\n3. The SHA-1 hash of the root tree object\n4. Parent commit hashes (none for the initial commit, one for a normal commit, multiple for a merge commit)\n5. Author information (name, email, timestamp)\n6. Committer information (name, email, timestamp)\n7. A blank line\n8. The commit message\n\nWhen you run `git commit`, Git:\n1. Creates a tree object from the current staging area\n2. Creates a commit object that points to that tree\n3. Updates the current branch reference to point to the new commit\n\nCommits form a directed acyclic graph (DAG) through their parent relationships, which is the foundation of Git's history tracking.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "commit", "label": "Commit Object" },
+                { "id": "tree", "label": "Tree: 7bb943..." },
+                { "id": "author", "label": "Author: John Doe" },
+                { "id": "committer", "label": "Committer: John Doe" },
+                { "id": "message", "label": "Message: Initial commit" },
+                { "id": "root_tree", "label": "Root Tree" },
+                { "id": "master", "label": "master branch" }
+              ],
+              "edges": [
+                { "from": "commit", "to": "tree", "label": "contains" },
+                { "from": "commit", "to": "author", "label": "contains" },
+                { "from": "commit", "to": "committer", "label": "contains" },
+                { "from": "commit", "to": "message", "label": "contains" },
+                { "from": "tree", "to": "root_tree", "label": "points to" },
+                { "from": "master", "to": "commit", "label": "points to" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "References",
+        "content": "References are pointers to commits. They include branches, tags, and special references like HEAD. References make it easy to refer to specific commits without using their full SHA-1 hashes.",
+        "commands": [
+          {
+            "command": "git branch",
+            "description": "List branches",
+            "expectedOutput": "* master"
+          },
+          {
+            "command": "cat .git/refs/heads/master",
+            "description": "View the commit hash that master points to",
+            "expectedOutput": "f7f51c7a8d2e50418592e261b99e7c2e3a7f6754"
+          },
+          {
+            "command": "git tag v1.0",
+            "description": "Create a tag",
+            "expectedOutput": ""
+          },
+          {
+            "command": "cat .git/refs/tags/v1.0",
+            "description": "View the commit hash that the tag points to",
+            "expectedOutput": "f7f51c7a8d2e50418592e261b99e7c2e3a7f6754"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Git Manages References",
+          "content": "Git references are simple pointers to commits. They're stored in the `.git/refs` directory:\n\n- Branches are stored in `.git/refs/heads/`\n- Tags are stored in `.git/refs/tags/`\n- Remote branches are stored in `.git/refs/remotes/`\n\nEach reference is a file containing the SHA-1 hash of the commit it points to. When you create a branch or tag, Git simply creates a new file with the appropriate name containing the hash of the current commit.\n\nThe special `HEAD` reference (stored in `.git/HEAD`) points to the current branch or commit. It's usually a symbolic reference that contains something like `ref: refs/heads/master` rather than a direct commit hash.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "trie",
+              "nodes": [
+                { "id": "git", "label": ".git/" },
+                { "id": "refs", "label": "refs/" },
+                { "id": "heads", "label": "heads/" },
+                { "id": "tags", "label": "tags/" },
+                { "id": "remotes", "label": "remotes/" },
+                { "id": "master", "label": "master" },
+                { "id": "feature", "label": "feature" },
+                { "id": "v1", "label": "v1.0" },
+                { "id": "head", "label": "HEAD" }
+              ],
+              "edges": [
+                { "from": "git", "to": "refs" },
+                { "from": "git", "to": "head" },
+                { "from": "refs", "to": "heads" },
+                { "from": "refs", "to": "tags" },
+                { "from": "refs", "to": "remotes" },
+                { "from": "heads", "to": "master" },
+                { "from": "heads", "to": "feature" },
+                { "from": "tags", "to": "v1" },
+                { "from": "head", "to": "master" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "The Index (Staging Area)",
+        "content": "The index, also known as the staging area, is a binary file that sits between your working directory and the repository. It contains a snapshot of the content you want to include in your next commit.",
+        "commands": [
+          {
+            "command": "echo 'New line' >> hello.txt",
+            "description": "Modify a file",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status",
+            "expectedOutput": "On branch master\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git checkout -- <file>...\" to discard changes in working directory)\n\n\tmodified:   hello.txt\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"
+          },
+          {
+            "command": "git add hello.txt",
+            "description": "Stage the changes",
+            "expectedOutput": ""
+          },
+          {
+            "command": "git status",
+            "description": "Check the status again",
+            "expectedOutput": "On branch master\nChanges to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)\n\n\tmodified:   hello.txt"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How the Index Works",
+          "content": "The index (or staging area) is a binary file stored at `.git/index`. It acts as a middle ground between your working directory and the repository. The index contains:\n\n1. A list of file paths\n2. The SHA-1 hash of the blob object for each file\n3. File metadata like permissions and size\n\nWhen you run `git add`, Git:\n1. Creates a blob object from the current content of the file\n2. Updates the index to point to this blob\n\nWhen you run `git commit`, Git:\n1. Creates a tree object from the current state of the index\n2. Creates a commit object that points to this tree\n3. Updates the current branch to point to the new commit\n\nThe index allows you to stage changes selectively, committing only what you want while leaving other changes for later commits.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "working", "label": "Working Directory" },
+                { "id": "index", "label": "Index (Staging Area)" },
+                { "id": "repository", "label": "Repository" },
+                { "id": "hello_working", "label": "hello.txt (modified)" },
+                { "id": "hello_index", "label": "hello.txt entry" },
+                { "id": "hello_blob", "label": "hello.txt blob" },
+                { "id": "add", "label": "git add" },
+                { "id": "commit", "label": "git commit" }
+              ],
+              "edges": [
+                { "from": "working", "to": "hello_working", "label": "contains" },
+                { "from": "index", "to": "hello_index", "label": "contains" },
+                { "from": "repository", "to": "hello_blob", "label": "contains" },
+                { "from": "add", "to": "hello_working", "label": "reads" },
+                { "from": "add", "to": "hello_index", "label": "updates" },
+                { "from": "add", "to": "hello_blob", "label": "creates" },
+                { "from": "hello_index", "to": "hello_blob", "label": "points to" },
+                { "from": "commit", "to": "index", "label": "reads" },
+                { "from": "commit", "to": "repository", "label": "updates" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Packfiles",
+        "content": "As your repository grows, Git periodically compresses objects into packfiles to save space. Packfiles store objects efficiently by using delta compression to store only the differences between similar objects.",
+        "commands": [
+          {
+            "command": "git gc",
+            "description": "Run garbage collection to compress objects",
+            "expectedOutput": ""
+          },
+          {
+            "command": "ls -la .git/objects/pack",
+            "description": "List packfiles",
+            "expectedOutput": "total 8\ndrwxr-xr-x  2 user group  68 Apr 29 12:34 .\ndrwxr-xr-x 23 user group 782 Apr 29 12:34 ..\n-rw-r--r--  1 user group 645 Apr 29 12:34 pack-1a2b3c4d.idx\n-rw-r--r--  1 user group 425 Apr 29 12:34 pack-1a2b3c4d.pack"
+          }
+        ],
+        "behindTheCommand": {
+          "title": "How Packfiles Work",
+          "content": "Initially, Git stores each object as a separate file in the object database. This is simple but inefficient, especially for large repositories with many similar objects. To optimize storage, Git uses packfiles.\n\nA packfile contains multiple objects stored efficiently using delta compression. Instead of storing each version of a file in full, Git stores one version in full and then stores only the differences (deltas) for other versions.\n\nPackfiles consist of two files:\n1. `.pack` file - Contains the packed objects\n2. `.idx` file - An index that allows Git to quickly locate objects in the pack\n\nGit automatically creates packfiles during certain operations like `git push` or `git gc`. The `git gc` command (garbage collection) explicitly triggers this process, compressing loose objects into packfiles and removing unreachable objects.",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "loose", "label": "Loose Objects" },
+                { "id": "packfile", "label": "Packfile" },
+                { "id": "index", "label": "Pack Index" },
+                { "id": "blob1", "label": "hello.txt v1" },
+                { "id": "blob2", "label": "hello.txt v2" },
+                { "id": "blob3", "label": "hello.txt v3" },
+                { "id": "base", "label": "Base Object" },
+                { "id": "delta1", "label": "Delta 1" },
+                { "id": "delta2", "label": "Delta 2" }
+              ],
+              "edges": [
+                { "from": "loose", "to": "blob1", "label": "contains" },
+                { "from": "loose", "to": "blob2", "label": "contains" },
+                { "from": "loose", "to": "blob3", "label": "contains" },
+                { "from": "packfile", "to": "base", "label": "contains" },
+                { "from": "packfile", "to": "delta1", "label": "contains" },
+                { "from": "packfile", "to": "delta2", "label": "contains" },
+                { "from": "base", "to": "blob1", "label": "represents" },
+                { "from": "delta1", "to": "blob2", "label": "represents" },
+                { "from": "delta2", "to": "blob3", "label": "represents" },
+                { "from": "delta1", "to": "base", "label": "based on" },
+                { "from": "delta2", "to": "base", "label": "based on" },
+                { "from": "index", "to": "packfile", "label": "indexes" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Putting It All Together",
+        "content": "Let's review how all these components work together in Git's object model.",
+        "behindTheCommand": {
+          "title": "Git's Object Model in Action",
+          "content": "Git's object model is elegant and powerful. Here's how the different components work together:\n\n1. **Blobs** store the content of your files.\n2. **Trees** represent directories and link to blobs and other trees, creating a snapshot of your entire project structure.\n3. **Commits** point to trees and contain metadata, representing snapshots of your project at specific points in time.\n4. **References** (branches, tags) point to commits, making it easy to refer to specific points in your project's history.\n5. **The index** acts as a staging area, allowing you to prepare changes for the next commit.\n6. **Packfiles** optimize storage by compressing objects and storing deltas between similar objects.\n\nThis model enables Git's key features:\n- Content-based addressing ensures data integrity\n- Efficient storage through deduplication and delta compression\n- Branching and merging with minimal overhead\n- Distributed operation without a central server",
+          "visualization": {
+            "type": "diagram",
+            "data": {
+              "type": "generic",
+              "nodes": [
+                { "id": "working", "label": "Working Directory" },
+                { "id": "index", "label": "Index" },
+                { "id": "objects", "label": "Object Database" },
+                { "id": "refs", "label": "References" },
+                { "id": "master", "label": "master" },
+                { "id": "head", "label": "HEAD" },
+                { "id": "commit1", "label": "Commit 1" },
+                { "id": "commit2", "label": "Commit 2" },
+                { "id": "tree1", "label": "Tree 1" },
+                { "id": "tree2", "label": "Tree 2" },
+                { "id": "blob1", "label": "Blob 1" },
+                { "id": "blob2", "label": "Blob 2" }
+              ],
+              "edges": [
+                { "from": "working", "to": "index", "label": "git add" },
+                { "from": "index", "to": "objects", "label": "git commit" },
+                { "from": "head", "to": "master", "label": "points to" },
+                { "from": "master", "to": "commit2", "label": "points to" },
+                { "from": "commit2", "to": "commit1", "label": "parent" },
+                { "from": "commit1", "to": "tree1", "label": "points to" },
+                { "from": "commit2", "to": "tree2", "label": "points to" },
+                { "from": "tree1", "to": "blob1", "label": "contains" },
+                { "from": "tree2", "to": "blob2", "label": "contains" }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

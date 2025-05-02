@@ -23,7 +23,7 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
             <ul className="command-list">
               {currentStepData.commands.map((cmd, index) => (
                 <li key={index} className="command-item">
-                  <code>{cmd.command}</code>
+                  <code title={cmd.description}>{cmd.command}</code>
                   <p>{cmd.description}</p>
                 </li>
               ))}
@@ -50,8 +50,8 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
         {currentStepData.fileChanges.map((change, index) => (
           <div key={index} className="file-change">
             <div className="file-change-header">
-              <span className={`change-type ${change.type}`}>{change.type}</span>
-              <span className="file-path">{change.path}</span>
+              <span className={`change-type ${change.type}`} title={`${change.type} operation`}>{change.type}</span>
+              <span className="file-path" title={`Path: ${change.path}`}>{change.path}</span>
             </div>
             <p className="file-change-description">{change.description}</p>
             
@@ -68,7 +68,10 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
 
   const renderBehindCommandTab = () => {
     // If there's no behind the command data in this step, show a message
+    console.log('Current step data:', currentStepData);
+    
     if (!currentStepData.behindTheCommand) {
+      console.log('No behindTheCommand data available for this step');
       return (
         <div className="behind-command-tab">
           <p>No behind-the-command information available for this step.</p>
@@ -76,11 +79,13 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
       );
     }
 
+    console.log('behindTheCommand data:', currentStepData.behindTheCommand);
     const { title, content, visualization } = currentStepData.behindTheCommand;
+    console.log('Visualization data:', visualization);
 
     return (
       <div className="behind-command-tab">
-        <h3>{title}</h3>
+        <h3 title={`Explanation: ${title}`}>{title}</h3>
         <div className="behind-command-content">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
@@ -88,16 +93,28 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
         {visualization && (
           <div className="visualization">
             {visualization.type === 'diagram' && (
-              <div className="diagram">
+              <div className="diagram" title="Interactive diagram: Hover over nodes for more information">
+                <h4 className="visualization-title">Interactive Diagram</h4>
+                <p className="visualization-description">This diagram illustrates the concepts explained above. Hover over elements for more details.</p>
+                <div style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '20px', border: '1px solid #ddd' }}>
+                  <h5 style={{ marginTop: '0', color: '#0366d6' }}>Visualization Data:</h5>
+                  <div style={{ maxHeight: '200px', overflow: 'auto' }}>
+                    <pre style={{ margin: '0' }}>
+                      {JSON.stringify(visualization.data, null, 2)}
+                    </pre>
+                  </div>
+                </div>
                 <DiagramVisualization data={visualization.data} />
               </div>
             )}
             
             {visualization.type === 'image' && (
               <div className="image-visualization">
+                <h4 className="visualization-title">Visual Representation</h4>
                 <img 
                   src={visualization.url} 
                   alt={title} 
+                  title={title}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = 'placeholder-image.png';
@@ -107,6 +124,26 @@ const TabContent = ({ activeTab, currentStep, module, fileStructure }) => {
             )}
           </div>
         )}
+        
+        {/* Debug information */}
+        <div className="debug-info" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px' }}>
+          <h4>Debug Information</h4>
+          <p>Current step: {currentStep}</p>
+          <p>Active tab: {activeTab}</p>
+          <p>Module ID: {module.id}</p>
+          <p>Step title: {currentStepData.title}</p>
+          <p>Behind the Command available: {currentStepData.behindTheCommand ? 'Yes' : 'No'}</p>
+          <p>Visualization data available: {visualization ? 'Yes' : 'No'}</p>
+          {visualization && (
+            <>
+              <p>Visualization type: {visualization.type}</p>
+              <p>Data nodes: {visualization.data?.nodes?.length || 0}</p>
+              <p>Data edges: {visualization.data?.edges?.length || 0}</p>
+              <p>Nodes: {JSON.stringify(visualization.data?.nodes)}</p>
+              <p>Edges: {JSON.stringify(visualization.data?.edges)}</p>
+            </>
+          )}
+        </div>
       </div>
     );
   };

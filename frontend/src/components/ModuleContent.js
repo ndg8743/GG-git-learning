@@ -21,7 +21,9 @@ const ModuleContent = () => {
   useEffect(() => {
     const fetchModule = async () => {
       try {
+        console.log('Fetching module with ID:', moduleId);
         const response = await axios.get(`http://localhost:5001/api/modules/${moduleId}`);
+        console.log('Module data received:', response.data);
         setModule(response.data);
         setLoading(false);
         
@@ -34,6 +36,24 @@ const ModuleContent = () => {
             }
           });
           setFileStructure(initialFileStructure);
+        }
+        
+        // Debug: Check if module has visualizations
+        const hasVisualizations = response.data.content.steps.some(step => 
+          step.visualizations || (step.behindTheCommand && step.behindTheCommand.visualization)
+        );
+        console.log('Module has visualizations:', hasVisualizations);
+        
+        if (hasVisualizations) {
+          console.log('Visualization data found in module:');
+          response.data.content.steps.forEach((step, index) => {
+            if (step.visualizations) {
+              console.log(`Step ${index} visualizations:`, step.visualizations);
+            }
+            if (step.behindTheCommand && step.behindTheCommand.visualization) {
+              console.log(`Step ${index} behindTheCommand visualization:`, step.behindTheCommand.visualization);
+            }
+          });
         }
       } catch (err) {
         setError('Failed to fetch module. Please try again later.');
