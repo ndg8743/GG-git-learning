@@ -300,56 +300,6 @@ footer p {
   box-shadow: 0 12px 48px var(--shadow-hover);
 }
 
-/* Graph Legend with Animation */
-.graph-legend {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 4px 20px var(--shadow-color);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  z-index: 5;
-  font-size: 0.85rem;
-  color: var(--text-color);
-  animation: slideInRight 0.8s var(--transition-smooth);
-  transition: all var(--transition-speed) var(--transition-smooth);
-  backdrop-filter: blur(10px);
-}
-
-.graph-legend:hover {
-  box-shadow: 0 6px 28px var(--shadow-hover);
-  transform: translateY(-2px);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all var(--transition-speed) var(--transition-smooth);
-}
-
-.legend-item:hover {
-  background: var(--bg-color);
-  transform: scale(1.05);
-}
-
-.legend-color {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  margin-right: 6px;
-  transition: all var(--transition-speed) var(--transition-smooth);
-}
-
-.legend-item:hover .legend-color {
-  transform: rotate(45deg);
-}
 
 /* Module Content with Smooth Transitions */
 .module-content {
@@ -928,52 +878,6 @@ footer p {
   background: var(--bg-color);
 }
 
-/* Graph Legend Enhancements */
-.graph-legend {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: var(--card-bg);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  animation: slideInLeft 0.6s ease-out;
-  transition: var(--transition-smooth);
-}
-
-.graph-legend:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: var(--text-color);
-  transition: var(--transition-smooth);
-}
-
-.legend-item:hover {
-  transform: translateX(4px);
-}
-
-.legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: var(--transition-bounce);
-}
-
-.legend-item:hover .legend-color {
-  transform: scale(1.3);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
 
 /* Module Node Content Enhancements */
 .module-node-content h3 {

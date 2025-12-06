@@ -1,0 +1,340 @@
+/* ===========================================
+   Learning Journey Graph Styles
+   =========================================== */
+
+.learning-journey {
+  width: 100%;
+  height: 85vh;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  overflow: hidden;
+  position: relative;
+  transition: all var(--transition-speed) var(--transition-smooth);
+  animation: scaleIn 0.6s var(--transition-smooth);
+}
+
+.learning-journey .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+.learning-journey:hover {
+  box-shadow: 0 12px 48px var(--shadow-hover);
+}
+
+/* Loading state */
+.learning-journey .loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+}
+
+/* ===========================================
+   Graph Legend - Fixed and Aligned
+   =========================================== */
+
+.graph-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  
+  /* Flexbox for horizontal layout */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  
+  /* Animation */
+  animation: slideUp 0.5s var(--transition-smooth);
+  z-index: 10;
+  
+  /* Backdrop blur for glass effect */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-speed) var(--transition-smooth);
+  cursor: default;
+  user-select: none;
+}
+
+.legend-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.legend-color {
+  /* Consistent circle size */
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  
+  /* Perfect circle */
+  border-radius: 50%;
+  
+  /* Subtle border for definition */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  
+  /* Flexbox centering */
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-color);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .graph-legend {
+    left: 10px;
+    right: 10px;
+    padding: 10px 14px;
+    gap: 10px;
+    bottom: 10px;
+  }
+  
+  .legend-item {
+    padding: 5px 10px;
+    gap: 6px;
+  }
+  
+  .legend-color {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+  }
+  
+  .legend-label {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .graph-legend {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .legend-item {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===========================================
+   ReactFlow Node Styles
+   =========================================== */
+
+.react-flow__node.animated-node {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.react-flow__node.animated-node:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 28px var(--shadow-hover) !important;
+  z-index: 10 !important;
+}
+
+.react-flow__node.animated-node:active {
+  transform: translateY(-2px) !important;
+  transition: transform 0.1s ease;
+}
+
+/* Module node content */
+.module-node-content {
+  text-align: center;
+  padding: 4px;
+}
+
+.module-node-content h3 {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.3;
+  transition: color 0.2s ease;
+}
+
+.module-node-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  line-height: 1.4;
+  transition: color 0.2s ease;
+  
+  /* Truncate long descriptions */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hover effects for node content */
+.react-flow__node.animated-node:hover .module-node-content h3 {
+  color: var(--primary-color);
+}
+
+.react-flow__node.animated-node:hover .module-node-content p {
+  color: var(--text-color);
+}
+
+/* ===========================================
+   ReactFlow Edge Styles
+   =========================================== */
+
+.react-flow__edge-path {
+  stroke-width: 2;
+  transition: stroke-width 0.2s ease, stroke 0.2s ease;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: flowDash 1s linear infinite;
+}
+
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* ===========================================
+   ReactFlow Controls
+   =========================================== */
+
+.react-flow__controls {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.react-flow__controls button {
+  background: var(--card-bg);
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls button:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.react-flow__controls button svg {
+  fill: currentColor;
+}
+
+/* ===========================================
+   ReactFlow Background
+   =========================================== */
+
+.react-flow__background {
+  background: var(--bg-color);
+}
+
+/* ===========================================
+   Dark Mode Overrides
+   =========================================== */
+
+body.dark-mode .react-flow__node.animated-node {
+  background: var(--card-bg) !important;
+}
+
+body.dark-mode .module-node-content h3 {
+  color: #f0f0f0;
+}
+
+body.dark-mode .module-node-content p {
+  color: #aaa;
+}
+
+body.dark-mode .react-flow__node.animated-node:hover .module-node-content h3 {
+  color: var(--accent-light);
+}
+
+body.dark-mode .react-flow__node.animated-node:hover .module-node-content p {
+  color: #ddd;
+}
+
+body.dark-mode .react-flow__controls {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .react-flow__controls button {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: #f0f0f0;
+}
+
+body.dark-mode .react-flow__controls button:hover {
+  background: var(--accent-color);
+}
+
+body.dark-mode .graph-legend {
+  background: rgba(22, 27, 34, 0.95);
+}
+
+body.dark-mode .legend-item {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .legend-color {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
