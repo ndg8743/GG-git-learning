@@ -145,7 +145,7 @@ Each module consists of:
 
 ## Credits
 
-Created by Nathan Gopee and Mostafa Ibrahim for FOCS.
+Created by Nathan Gopee for FOCS.
 
 ## License
 

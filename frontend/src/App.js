@@ -65,7 +65,7 @@ function App() {
         </main>
         <footer>
           <p>Git Learning Journey - A modular approach to learning Git</p>
-          <p>Created by Nathan Gopee and Mostafa Ibrahim for FOCS</p>
+          <p>Created by Nathan Gopee for FOCS</p>
         </footer>
       </div>
     </Router>
