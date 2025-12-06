@@ -82,8 +82,8 @@
     },
     {
       "id": "git-internals-trie",
-      "title": "Git Internals: Trie Data Structure",
-      "description": "How Git uses Tries for path storage",
+      "title": "Data Structures in Version Control: Tries",
+      "description": "Theoretical application of Tries for path storage",
       "position": { "x": 550, "y": 250 },
       "prerequisites": ["git-internals-objects"],
       "nextModules": ["git-internals-bloom", "git-performance"]
@@ -98,16 +98,16 @@
     },
     {
       "id": "git-internals-avl",
-      "title": "Git Internals: AVL Trees",
-      "description": "Self-balancing trees in Git's implementation",
+      "title": "Data Structures in Version Control: AVL Trees",
+      "description": "Theoretical application of self-balancing trees",
       "position": { "x": 200, "y": 450 },
       "prerequisites": ["git-branching-basics"],
       "nextModules": ["git-custom-commands"]
     },
     {
       "id": "git-internals-bloom",
-      "title": "Git Internals: Bloom Filters",
-      "description": "Fast path existence checking in Git",
+      "title": "Data Structures in Version Control: Bloom Filters",
+      "description": "Theoretical application of Bloom filters",
       "position": { "x": 500, "y": 350 },
       "prerequisites": ["git-internals-trie"],
       "nextModules": []
@@ -122,16 +122,16 @@
     },
     {
       "id": "git-internals-skiplist",
-      "title": "Git Internals: Skip Lists",
-      "description": "Fast commit indexing and searching",
+      "title": "Data Structures in Version Control: Skip Lists",
+      "description": "Theoretical application of Skip Lists",
       "position": { "x": 700, "y": 350 },
       "prerequisites": ["git-internals-dag"],
       "nextModules": ["git-bisect"]
     },
     {
       "id": "git-internals-disjoint",
-      "title": "Git Internals: Disjoint Sets",
-      "description": "Merge tracking with Union-Find data structures",
+      "title": "Data Structures in Version Control: Disjoint Sets",
+      "description": "Theoretical application of Union-Find",
       "position": { "x": 800, "y": 350 },
       "prerequisites": ["git-internals-dag"],
       "nextModules": []
