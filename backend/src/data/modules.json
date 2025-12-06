@@ -100,7 +100,7 @@
       "id": "git-internals-avl",
       "title": "Data Structures in Version Control: AVL Trees",
       "description": "Theoretical application of self-balancing trees",
-      "position": { "x": 200, "y": 450 },
+      "position": { "x": 100, "y": 500 },
       "prerequisites": ["git-branching-basics"],
       "nextModules": ["git-custom-commands"]
     },
@@ -140,7 +140,7 @@
       "id": "git-rebasing",
       "title": "Rebasing and History Manipulation",
       "description": "Interactive rebasing and squashing commits",
-      "position": { "x": 750, "y": 450 },
+      "position": { "x": 850, "y": 500 },
       "prerequisites": ["git-internals-dag"],
       "nextModules": []
     },
@@ -148,7 +148,7 @@
       "id": "git-bisect",
       "title": "Git Bisect and Debugging",
       "description": "Binary search for bugs in your history",
-      "position": { "x": 700, "y": 450 },
+      "position": { "x": 650, "y": 500 },
       "prerequisites": ["git-internals-skiplist"],
       "nextModules": []
     },
@@ -156,7 +156,7 @@
       "id": "git-custom-commands",
       "title": "Custom Git Commands and Extensions",
       "description": "Creating aliases and Git extensions",
-      "position": { "x": 150, "y": 550 },
+      "position": { "x": 100, "y": 600 },
       "prerequisites": ["git-internals-avl"],
       "nextModules": []
     }
