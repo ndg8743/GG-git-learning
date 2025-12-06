@@ -1,13 +1,13 @@
 {
   "id": "git-internals-bloom",
-  "title": "Git Internals: Bloom Filters",
-  "description": "Fast path existence checking in Git",
+  "title": "Data Structures in Version Control: Bloom Filters",
+  "description": "Theoretical application of Bloom filters in version control systems",
   "content": {
-    "overview": "In this module, you'll learn how Git uses Bloom filters, a space-efficient probabilistic data structure, to quickly determine whether a file path might exist in a repository. Understanding this data structure helps explain how Git can efficiently handle operations like path existence checking in large repositories.",
+    "overview": "**EDUCATIONAL NOTE**: This module explores how Bloom filters, a space-efficient probabilistic data structure, COULD be used in version control systems for fast path existence checking. While Git doesn't actually use Bloom filters in this specific way, understanding this data structure illustrates important concepts in optimizing version control performance. Git primarily uses simpler hash tables and direct lookups for path checking.",
     "steps": [
       {
-        "title": "Introduction to Bloom Filters in Git",
-        "content": "A Bloom filter is a space-efficient probabilistic data structure used to test whether an element is a member of a set. It can tell you with certainty when an element is NOT in the set, but it may give false positives. Git uses Bloom filters to quickly check if a path might exist in a repository, which helps optimize many operations.",
+        "title": "Introduction to Bloom Filters in Version Control",
+        "content": "A Bloom filter is a space-efficient probabilistic data structure used to test whether an element is a member of a set. It can tell you with certainty when an element is NOT in the set, but it may give false positives. A version control system could theoretically use Bloom filters to quickly check if a path might exist in a repository, optimizing many operations. This is an educational exploration of how such a system might work.",
         "visualizations": {
           "type": "diagram",
           "data": {

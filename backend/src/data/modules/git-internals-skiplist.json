@@ -1,9 +1,9 @@
 {
   "id": "git-internals-skiplist",
-  "title": "Git Internals: Skip Lists",
-  "description": "Fast commit indexing and searching",
+  "title": "Data Structures in Version Control: Skip Lists",
+  "description": "Theoretical application of Skip Lists for commit indexing",
   "content": {
-    "overview": "Skip lists are probabilistic data structures that allow for efficient searching, insertion, and deletion operations. In Git, skip list-like structures are used for fast commit indexing and searching, enabling quick navigation through the commit history. This module explores how Git uses these structures internally and how they contribute to Git's performance.",
+    "overview": "**EDUCATIONAL NOTE**: This module explores how Skip Lists, probabilistic data structures, COULD be used in version control systems for fast commit indexing and searching. Git doesn't actually use Skip Lists - it uses simple linked lists for commit history and hash tables for object lookup. This is an educational exploration of how Skip Lists might optimize commit navigation in version control systems.",
     "steps": [
       {
         "title": "Understanding Skip Lists",

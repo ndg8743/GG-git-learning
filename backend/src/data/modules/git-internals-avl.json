@@ -1,9 +1,9 @@
 {
   "id": "git-internals-avl",
-  "title": "Git Internals: AVL Trees",
-  "description": "Self-balancing trees in Git's implementation",
+  "title": "Data Structures in Version Control: AVL Trees",
+  "description": "Theoretical application of self-balancing trees in version control",
   "content": {
-    "overview": "In this module, you'll learn how Git uses AVL trees, a type of self-balancing binary search tree, to efficiently manage and search through large collections of objects. Understanding this data structure is crucial for comprehending Git's performance characteristics and internal operations, especially when dealing with large repositories.",
+    "overview": "**EDUCATIONAL NOTE**: This module explores how AVL trees, a type of self-balancing binary search tree, COULD be used in version control systems to manage and search through collections of objects. Git doesn't actually use AVL trees - it primarily uses simple hash tables and linked structures. This is an educational exploration of how balanced trees might optimize certain version control operations.",
     "steps": [
       {
         "title": "Introduction to AVL Trees in Git",

@@ -1,9 +1,9 @@
 {
   "id": "git-internals-trie",
-  "title": "Git Internals: Trie Data Structure",
-  "description": "How Git uses Tries for path storage",
+  "title": "Data Structures in Version Control: Tries",
+  "description": "Theoretical application of Tries for path storage in version control",
   "content": {
-    "overview": "In this module, you'll learn how Git uses a variant of the Trie data structure (specifically a Patricia Trie or Radix Tree) to efficiently store and retrieve file paths in the repository. Understanding this data structure is key to comprehending Git's internal operations and performance characteristics.",
+    "overview": "**EDUCATIONAL NOTE**: This module explores how Trie data structures (Patricia Tries or Radix Trees) COULD be used in version control systems for efficient path storage and retrieval. Git doesn't actually use Tries for path storage - it stores paths as simple strings in tree objects. This is an educational exploration of how Tries might optimize path-based operations in version control systems.",
     "steps": [
       {
         "title": "Introduction to Tries in Git",

@@ -1,9 +1,9 @@
 {
   "id": "git-internals-disjoint",
-  "title": "Git Internals: Disjoint Sets",
-  "description": "Merge tracking with Union-Find data structures",
+  "title": "Data Structures in Version Control: Disjoint Sets",
+  "description": "Theoretical application of Union-Find for merge tracking",
   "content": {
-    "overview": "Disjoint-set data structures (also known as Union-Find) are used to track sets of elements partitioned into non-overlapping subsets. In Git, similar concepts are used for efficient merge tracking and conflict resolution. This module explores how Git uses disjoint-set-like structures to manage branches and merges.",
+    "overview": "**EDUCATIONAL NOTE**: This module explores how Disjoint-set data structures (Union-Find) COULD be used in version control systems for merge tracking and conflict resolution. Git doesn't actually use Union-Find structures - it tracks merges through commit parent relationships in the DAG. This is an educational exploration of how Union-Find might optimize certain merge operations in version control systems.",
     "steps": [
       {
         "title": "Understanding Disjoint Sets",
