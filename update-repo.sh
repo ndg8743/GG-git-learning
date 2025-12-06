@@ -28,7 +28,7 @@ git pull origin main >> "$LOG_FILE" 2>&1 || {
 # Rebuild the frontend if needed
 if [ -d "$REPO_DIR/frontend" ]; then
   log "Rebuilding frontend"
-  cd "$REPO_DIR/frontend" && npm install && npm run build >> "$LOG_FILE" 2>&1 || {
+  cd "$REPO_DIR/frontend" && npm ci && npm run build >> "$LOG_FILE" 2>&1 || {
     log "Error: Frontend rebuild failed"
     exit 1
   }

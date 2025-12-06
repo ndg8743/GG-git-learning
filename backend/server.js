@@ -15,7 +15,11 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'your-webhook-secret';
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow requests from the frontend
+  origin: [
+    'http://localhost:3000', // Development
+    'https://hydra.newpaltz.edu', // Production
+    'http://hydra.newpaltz.edu' // Production fallback
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -78,7 +82,7 @@ app.post('/git/webhook', (req, res) => {
     console.log('Received push to main branch, updating repository...');
     
     // Execute update script
-    exec(path.join(__dirname, 'update-repo.sh'), (error, stdout, stderr) => {
+    exec(path.join(__dirname, '../update-repo.sh'), (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing update script: ${error}`);
         return res.status(500).json({ 

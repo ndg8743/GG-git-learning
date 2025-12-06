@@ -41,6 +41,7 @@ const LearningJourney = ({ modules, connections }) => {
 
   // Convert modules to ReactFlow nodes with tooltips
   const initialNodes = useMemo(() => {
+    console.log('Creating nodes from modules:', modules.length);
     return modules.map((module) => {
       // Determine node color based on category
       let borderColor = '#0366d6'; // default blue
@@ -52,16 +53,19 @@ const LearningJourney = ({ modules, connections }) => {
         borderColor = '#fd7e14'; // orange for collaboration
       }
 
-      // Adjust positions to have moderate spacing
+      // Adjust positions with proper spacing
       const adjustedPosition = {
-        x: module.position.x * 2.5, // Reduce horizontal spacing multiplier from 3.5 to 2.5
-        y: module.position.y * 2.0  // Reduce vertical spacing multiplier from 3.0 to 2.0
+        x: module.position.x * 3.5,
+        y: module.position.y * 3.0
       };
+
+      console.log(`Node ${module.id}: original (${module.position.x}, ${module.position.y}) -> adjusted (${adjustedPosition.x}, ${adjustedPosition.y})`);
 
       return {
         id: module.id,
+        type: 'default',
         position: adjustedPosition,
-        data: { 
+        data: {
           label: (
             <div className="module-node-content">
               <h3>{module.title}</h3>
@@ -73,11 +77,14 @@ const LearningJourney = ({ modules, connections }) => {
         },
         style: {
           background: '#ffffff',
-          border: `5px solid ${borderColor}`, // Increased border thickness from 2px to 4px
+          border: `5px solid ${borderColor}`,
           borderRadius: '8px',
           padding: '10px',
-          width: 220, // Wider nodes for better readability
+          width: 220,
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         },
+        className: 'animated-node',
       };
     });
   }, [modules]);
@@ -131,21 +138,36 @@ const LearningJourney = ({ modules, connections }) => {
     });
   }, [nodes]);
 
+  if (!modules || modules.length === 0) {
+    return (
+      <div className="learning-journey">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <p>Loading modules...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="learning-journey">
       <ReactFlow
+        key={`reactflow-${modules.length}`}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}  // Reduce padding from 0.3 to 0.2
-        minZoom={0.4}                      // Increase minimum zoom from 0.3 to 0.4
-        maxZoom={1.5}
-        defaultViewport={{ zoom: 0.8 }}    // Increase default zoom from 0.6 to 0.8
+        minZoom={0.05}
+        maxZoom={2}
         attributionPosition="bottom-right"
         nodesDraggable={true}
+        fitView
+        fitViewOptions={{ padding: 0.1, duration: 500 }}
+        onInit={(reactFlowInstance) => {
+          console.log('ReactFlow initialized with nodes:', reactFlowInstance.getNodes().length);
+          const positions = reactFlowInstance.getNodes().map(n => `${n.id}: (${n.position.x}, ${n.position.y})`);
+          console.log('Node positions after init:', positions);
+        }}
       >
         <Background color="#f0f0f0" gap={16} />
         <Controls />

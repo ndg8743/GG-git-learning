@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import DiagramVisualization from './DiagramVisualization';
 
-const TabContent = ({ activeTab, currentStep, module, fileStructure, showDebugInfo = true }) => {
+const TabContent = ({ activeTab, currentStep, module, fileStructure, showDebugInfo = false }) => {
   if (!module || !module.content || !module.content.steps || !module.content.steps[currentStep]) {
     return <div>No content available</div>;
   }
